@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감성 영상 프롬프트 생성기</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080812;
+  --surface: #0f0f1e;
+  --surface2: #16162c;
+  --border: #1e1e38;
+  --border-light: #2e2e50;
+  --purple: #7c3aed;
+  --violet: #8b5cf6;
+  --pink: #ec4899;
+  --text: #e2e2f0;
+  --text-dim: #8888aa;
+  --text-muted: #444466;
+  --accent-gradient: linear-gradient(135deg, #7c3aed, #ec4899);
+  --selected-bg: rgba(124, 58, 237, 0.18);
+  --selected-border: #7c3aed;
+  --selected-text: #c4b5fd;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Stars background */
+#stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 52px 20px 40px;
+  position: relative;
+}
+
+.header-glow {
+  position: absolute;
+  top: -20px; left: 50%;
+  transform: translateX(-50%);
+  width: 500px; height: 300px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.header .sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Section */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px 20px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.section:hover { border-color: var(--border-light); }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.sec-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sec-num {
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(124,58,237,0.5), rgba(236,72,153,0.35));
+  border-radius: 6px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  flex-shrink: 0;
+}
+
+.sec-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Subgroup */
+.subgroup { margin-top: 0; }
+.subgroup + .subgroup { margin-top: 16px; }
+.sg-label {
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+/* Button grid */
+.btn-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+/* Option buttons */
+.opt {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.opt:hover {
+  border-color: var(--violet);
+  color: var(--text);
+  background: rgba(139,92,246,0.1);
+  transform: translateY(-1px);
+}
+.opt:active { transform: translateY(0); }
+.opt.on {
+  background: var(--selected-bg);
+  border-color: var(--selected-border);
+  color: var(--selected-text);
+}
+.opt.on::before { content: '✓ '; opacity: 0.8; }
+
+/* Type buttons */
+.type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.type-btn {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  color: var(--text);
+  padding: 20px 16px;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.type-btn .em { font-size: 1.7rem; }
+.type-btn:hover {
+  border-color: var(--violet);
+  background: rgba(139,92,246,0.1);
+  transform: translateY(-2px);
+}
+.type-btn.on {
+  border-color: var(--purple);
+  background: linear-gradient(135deg, rgba(124,58,237,0.28), rgba(236,72,153,0.16));
+  color: #c4b5fd;
+  box-shadow: 0 0 24px rgba(124,58,237,0.2);
+}
+
+/* Small random button */
+.rnd {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.rnd:hover {
+  border-color: var(--violet);
+  color: var(--violet);
+  background: rgba(139,92,246,0.1);
+}
+.rnd .d { display: inline-block; transition: transform 0.35s ease; }
+.rnd.spin .d { transform: rotate(360deg); }
+
+/* Action area */
+.actions {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.abtn {
+  border: none;
+  border-radius: 14px;
+  padding: 15px 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.abtn:hover { transform: translateY(-2px); }
+.abtn:active { transform: translateY(0); }
+
+.abtn-gen {
+  background: var(--accent-gradient);
+  color: white;
+  padding: 20px;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.3);
+  letter-spacing: 0.02em;
+}
+.abtn-gen:hover { box-shadow: 0 10px 36px rgba(124,58,237,0.5); }
+
+.abtn-all {
+  background: linear-gradient(135deg, #052e16, #064e3b);
+  color: #6ee7b7;
+  border: 1px solid #065f46;
+}
+.abtn-vintage {
+  background: linear-gradient(135deg, #431407, #7c2d12);
+  color: #fde68a;
+  border: 1px solid #9a3412;
+}
+.abtn-fantasy {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #a5b4fc;
+  border: 1px solid #3730a3;
+}
+.abtn-copy {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+}
+.abtn-copy:hover { border-color: var(--violet); }
+.abtn-copy.ok { border-color: #22c55e; color: #22c55e; }
+.abtn-reset {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.abtn-reset:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+
+/* Output */
+.output {
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  display: none;
+  animation: up 0.32s ease;
+}
+.output.show { display: block; }
+
+@keyframes up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.out-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.out-label {
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.out-badge {
+  font-size: 0.7rem;
+  padding: 3px 12px;
+  border-radius: 100px;
+  background: rgba(124,58,237,0.2);
+  border: 1px solid rgba(139,92,246,0.35);
+  color: #a78bfa;
+}
+
+.out-text {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 0.84rem;
+  line-height: 1.85;
+  color: #c8c8e8;
+  white-space: pre-wrap;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--purple); }
+
+/* Mobile */
+@media (max-width: 520px) {
+  .header h1 { font-size: 1.45rem; }
+  .header .sub { font-size: 0.72rem; letter-spacing: 0.12em; }
+  .row3 { grid-template-columns: 1fr; }
+  .opt { font-size: 0.76rem; padding: 6px 12px; }
+  .type-btn { padding: 16px 12px; }
+  .type-btn .em { font-size: 1.4rem; }
+  .section { padding: 18px 14px; }
+}
+
+@media (max-width: 360px) {
+  .wrap { padding: 0 10px 60px; }
+  .header { padding: 36px 12px 28px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-glow"></div>
+    <h1>감성 영상 프롬프트 생성기</h1>
+    <p class="sub">Dreamcore &nbsp;·&nbsp; Fantasy &nbsp;·&nbsp; Vintage &nbsp;·&nbsp; Cinematic</p>
+  </header>
+
+  <!-- 01 생성 유형 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">01</span>
+        <span class="sec-title">생성 유형</span>
+      </div>
+    </div>
+    <div class="type-grid" id="typeGrid">
+      <button class="type-btn on" data-val="이미지" onclick="pickType(this)">
+        <span class="em">🖼️</span>이미지
+      </button>
+      <button class="type-btn" data-val="영상" onclick="pickType(this)">
+        <span class="em">🎬</span>영상
+      </button>
+    </div>
+  </div>
+
+  <!-- 02 출력 비율 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">02</span>
+        <span class="sec-title">출력 비율</span>
+      </div>
+    </div>
+    <div class="btn-grid" id="ratioGrid"></div>
+  </div>
+
+  <!-- 03 스타일 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">03</span>
+        <span class="sec-title">스타일</span>
+      </div>
+      <button class="rnd" onclick="rndItem('style', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">📼 빈티지 계열</div>
+      <div class="btn-grid" id="styleV"></div>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">✨ 판타지 계열</div>
+      <div class="btn-grid" id="styleF"></div>
+    </div>
+  </div>
+
+  <!-- 04 장면 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">04</span>
+        <span class="sec-title">장면</span>
+      </div>
+      <button class="rnd" onclick="rndItem('scene', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">🌆 도시</div>
+      <div class="btn-grid" id="sceneC"></div>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">🌿 자연</div>
+      <div class="btn-grid" id="sceneN"></div>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">🚪 공간</div>
+      <div class="btn-grid" id="sceneS"></div>
+    </div>
+  </div>
+
+  <!-- 05 주인공 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">05</span>
+        <span class="sec-title">주인공</span>
+      </div>
+      <button class="rnd" onclick="rndItem('subject', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="btn-grid" id="subjectGrid"></div>
+  </div>
+
+  <!-- 06 판타지 요소 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">06</span>
+        <span class="sec-title">판타지 요소</span>
+      </div>
+      <button class="rnd" onclick="rndItem('fantasyEl', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="btn-grid" id="fantasyGrid"></div>
+  </div>
+
+  <!-- 07 감정 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">07</span>
+        <span class="sec-title">감정</span>
+      </div>
+      <button class="rnd" onclick="rndItem('emotion', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="btn-grid" id="emotionGrid"></div>
+  </div>
+
+  <!-- 08 색감 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">08</span>
+        <span class="sec-title">색감</span>
+      </div>
+      <button class="rnd" onclick="rndItem('color', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">📼 빈티지 계열</div>
+      <div class="btn-grid" id="colorV"></div>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">✨ 판타지 계열</div>
+      <div class="btn-grid" id="colorF"></div>
+    </div>
+  </div>
+
+  <!-- 09 화질/질감 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">09</span>
+        <span class="sec-title">화질 / 질감</span>
+      </div>
+      <button class="rnd" onclick="rndItem('quality', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">📼 빈티지 질감</div>
+      <div class="btn-grid" id="qualityV"></div>
+    </div>
+    <div class="subgroup">
+      <div class="sg-label">✨ 고화질 질감</div>
+      <div class="btn-grid" id="qualityH"></div>
+    </div>
+  </div>
+
+  <!-- 10 카메라 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-label">
+        <span class="sec-num">10</span>
+        <span class="sec-title">카메라</span>
+      </div>
+      <button class="rnd" onclick="rndItem('camera', this)"><span class="d">🎲</span> 랜덤</button>
+    </div>
+    <div class="btn-grid" id="cameraGrid"></div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="actions">
+    <button class="abtn abtn-gen" onclick="generate()">✨ 프롬프트 생성</button>
+    <div class="row3">
+      <button class="abtn abtn-all"     onclick="allRnd()">🎲 전체 랜덤</button>
+      <button class="abtn abtn-vintage" onclick="vintageRnd()">✨ 빈티지 랜덤</button>
+      <button class="abtn abtn-fantasy" onclick="fantasyRnd()">🌌 판타지 랜덤</button>
+    </div>
+    <div class="row2">
+      <button class="abtn abtn-copy" id="copyBtn" onclick="doCopy()">📋 복사하기</button>
+      <button class="abtn abtn-reset" onclick="doReset()">↩ 초기화</button>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="output" id="outputBox">
+    <div class="out-header">
+      <span class="out-label">🎬 생성된 프롬프트</span>
+      <span class="out-badge" id="outBadge">이미지</span>
+    </div>
+    <div class="out-text" id="outText"></div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const D = {
+  ratio: [
+    '인스타 릴스 (9:16)', '유튜브 쇼츠 (9:16)', '인스타 캐러셀 (4:5)',
+    '유튜브 썸네일 (16:9)', '유튜브 영상 (16:9)', '모바일 배경화면 (9:16)', '정사각형 (1:1)'
+  ],
+  style: {
+    v: ['아날로그 드림코어', 'VHS 감성', '35mm 필름', '90년대 청춘영화', '일본 감성 영화', '왕가위 스타일', '흐릿한 기억', '리미널 스페이스'],
+    f: ['시네마틱 판타지', '은하 판타지', '드림스케이프', '우주 도시', '초현실 세계', '미래 도시', '마법 같은 풍경', '신화적 판타지']
+  },
+  scene: {
+    c: ['야간 도심', '네온 골목', '빌딩 옥상', '고속도로', '한강 다리', '지하철역', '도시 외곽', '높은 빌딩 창가'],
+    n: ['숲', '바다', '호수', '산', '사막', '초원', '노을 들판', '어두운 해변'],
+    s: ['방 안', '창가', '복도', '폐건물', '자판기 앞', '기차역', '옥상 난간', '오래된 주차장']
+  },
+  subject: ['없음', '혼자 있는 사람', '두 사람', '친구들', '실루엣', '어린아이', '여행자', '우주비행사', '자동차', '고래', '떠다니는 인물'],
+  fantasyEl: ['없음', '은하수', '유성우', '거대한 달', '오로라', '우주 고래', '떠다니는 자동차', '풍선에 매달린 자동차', '공중부양', '빛의 계단', '웜홀', '떠다니는 섬', '하늘의 바다', '별의 폭포', '도시 위로 흐르는 빛의 강', '핑크 성운'],
+  emotion: ['희망적인', '설레는', '자유로운', '외로운', '그리운', '평온한', '낭만적인', '막막하지만 아름다운', '불안하지만 매혹적인', '꿈속 같은', '새로운 시작 같은', '끝나지 않는 청춘 같은', '미래를 처음 본 듯한', '조용히 벅찬'],
+  color: {
+    v: ['딥 블루 + 오렌지 조명', '어두운 남색 + 붉은 네온', '흐린 청록 + 낡은 노란빛', '저채도 블루 필름톤', '노을빛 오렌지 + 깊은 그림자', '오래된 필름 브라운톤'],
+    f: ['핑크 + 퍼플 + 골드', '코발트 블루 + 바이올렛', '오로라 그린 + 퍼플', '네온 블루 + 마젠타', '별빛 실버 + 딥 네이비', '선셋 오렌지 + 은하 퍼플']
+  },
+  quality: {
+    v: ['VHS 노이즈', '강한 필름 그레인', '35mm 필름 스캔', '소프트 포커스', '빛 번짐과 할레이션', '저조도 필름 사진', '낡은 필름 먼지와 스크래치'],
+    h: ['초고해상도 HDR', '선명한 디지털 시네마', 'IMAX 판타지 룩', '극적인 고대비', '반짝이는 디테일 강화', '몽환적 글로우', '초현실적 선명도']
+  },
+  camera: {
+    img: ['정면 구도', '광각 구도', '로우앵글', '하이앵글', '항공샷', '멀리서 바라본 구도', '창밖에서 바라본 구도', '차 안에서 바라본 구도'],
+    vid: ['천천히 앞으로 이동', '아주 느린 줌인', '드론처럼 상승', '좌우로 느린 패닝', '손떨림 있는 필름 카메라', '차량 주행 시점', '영화 스틸컷 같은 미세한 움직임', '별빛과 구름이 천천히 흐르는 움직임', '빛이 번지며 꿈처럼 흔들리는 움직임']
+  }
+};
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+const S = { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:null, emotion:null, color:null, quality:null, camera:null };
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function mkBtns(id, items, key) {
+  const el = $(id);
+  if (!el) return;
+  el.innerHTML = '';
+  items.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (S[key] === v ? ' on' : '');
+    b.textContent = v;
+    b.dataset.k = key;
+    b.dataset.v = v;
+    b.onclick = () => { S[key] = v; sync(key); };
+    el.appendChild(b);
+  });
+}
+
+function sync(key) {
+  document.querySelectorAll(`.opt[data-k="${key}"]`).forEach(b => {
+    b.classList.toggle('on', b.dataset.v === S[key]);
+  });
+}
+
+function buildCamera() {
+  const items = S.type === '이미지' ? D.camera.img : D.camera.vid;
+  if (S.camera && !items.includes(S.camera)) S.camera = null;
+  mkBtns('cameraGrid', items, 'camera');
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+function init() {
+  mkBtns('ratioGrid',   D.ratio,        'ratio');
+  mkBtns('styleV',      D.style.v,      'style');
+  mkBtns('styleF',      D.style.f,      'style');
+  mkBtns('sceneC',      D.scene.c,      'scene');
+  mkBtns('sceneN',      D.scene.n,      'scene');
+  mkBtns('sceneS',      D.scene.s,      'scene');
+  mkBtns('subjectGrid', D.subject,      'subject');
+  mkBtns('fantasyGrid', D.fantasyEl,    'fantasyEl');
+  mkBtns('emotionGrid', D.emotion,      'emotion');
+  mkBtns('colorV',      D.color.v,      'color');
+  mkBtns('colorF',      D.color.f,      'color');
+  mkBtns('qualityV',    D.quality.v,    'quality');
+  mkBtns('qualityH',    D.quality.h,    'quality');
+  buildCamera();
+}
+
+// ─────────────────────────────────────────
+// TYPE SELECTION
+// ─────────────────────────────────────────
+function pickType(btn) {
+  document.querySelectorAll('#typeGrid .type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  S.type = btn.dataset.val;
+  buildCamera();
+}
+
+// ─────────────────────────────────────────
+// INDIVIDUAL RANDOM
+// ─────────────────────────────────────────
+function rndItem(key, btn) {
+  // Dice spin
+  const d = btn.querySelector('.d');
+  btn.classList.remove('spin');
+  void btn.offsetWidth;
+  btn.classList.add('spin');
+  setTimeout(() => btn.classList.remove('spin'), 380);
+
+  const pools = {
+    style:    [...D.style.v, ...D.style.f],
+    scene:    [...D.scene.c, ...D.scene.n, ...D.scene.s],
+    subject:  D.subject,
+    fantasyEl:D.fantasyEl,
+    emotion:  D.emotion,
+    color:    [...D.color.v, ...D.color.f],
+    quality:  [...D.quality.v, ...D.quality.h],
+    camera:   S.type === '이미지' ? D.camera.img : D.camera.vid
+  };
+  S[key] = pick(pools[key] || []);
+  sync(key);
+}
+
+// ─────────────────────────────────────────
+// BULK RANDOMS
+// ─────────────────────────────────────────
+function setType(t) {
+  S.type = t;
+  document.querySelectorAll('#typeGrid .type-btn').forEach(b => b.classList.toggle('on', b.dataset.val === t));
+  buildCamera();
+}
+
+function allRnd() {
+  setType(pick(['이미지', '영상']));
+  S.ratio    = pick(D.ratio);                                       sync('ratio');
+  S.style    = pick([...D.style.v, ...D.style.f]);                  sync('style');
+  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);    sync('scene');
+  S.subject  = pick(D.subject);                                     sync('subject');
+  S.fantasyEl= pick(D.fantasyEl);                                   sync('fantasyEl');
+  S.emotion  = pick(D.emotion);                                     sync('emotion');
+  S.color    = pick([...D.color.v, ...D.color.f]);                  sync('color');
+  S.quality  = pick([...D.quality.v, ...D.quality.h]);              sync('quality');
+  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+}
+
+function vintageRnd() {
+  S.ratio    = pick(D.ratio);                                    sync('ratio');
+  S.style    = pick(D.style.v);                                  sync('style');
+  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);sync('scene');
+  S.subject  = pick(D.subject);                                  sync('subject');
+  S.fantasyEl= '없음';                                           sync('fantasyEl');
+  S.emotion  = pick(D.emotion);                                  sync('emotion');
+  S.color    = pick(D.color.v);                                  sync('color');
+  S.quality  = pick(D.quality.v);                                sync('quality');
+  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+}
+
+function fantasyRnd() {
+  S.ratio    = pick(D.ratio);                                    sync('ratio');
+  S.style    = pick(D.style.f);                                  sync('style');
+  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);sync('scene');
+  S.subject  = pick(D.subject);                                  sync('subject');
+  S.fantasyEl= pick(D.fantasyEl.filter(e => e !== '없음'));      sync('fantasyEl');
+  S.emotion  = pick(D.emotion);                                  sync('emotion');
+  S.color    = pick(D.color.f);                                  sync('color');
+  S.quality  = pick(D.quality.h);                                sync('quality');
+  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+}
+
+// ─────────────────────────────────────────
+// GENERATE PROMPT
+// ─────────────────────────────────────────
+function generate() {
+  const r = S.ratio      || '출력 비율 미선택';
+  const st = S.style     || '스타일 미선택';
+  const sc = S.scene     || '장면 미선택';
+  const su = S.subject   || '없음';
+  const fe = S.fantasyEl || '없음';
+  const em = S.emotion   || '감정 미선택';
+  const co = S.color     || '색감 미선택';
+  const qu = S.quality   || '화질 미선택';
+  const ca = S.camera    || '카메라 미선택';
+
+  let prompt;
+  if (S.type === '이미지') {
+    prompt =
+`Create a ${r} cinematic image.
+
+Scene: ${sc}.
+Style: ${st}.
+Main subject: ${su}.
+Fantasy element: ${fe}.
+Mood: ${em}.
+Color palette: ${co}.
+Texture and quality: ${qu}.
+Camera composition: ${ca}.
+
+The image should feel emotional, surreal, cinematic, poetic, and dreamlike.
+Highly detailed visual storytelling, atmospheric lighting, immersive composition.`;
+  } else {
+    prompt =
+`Create a ${r} cinematic video.
+
+Scene: ${sc}.
+Style: ${st}.
+Main subject: ${su}.
+Fantasy element: ${fe}.
+Mood: ${em}.
+Color palette: ${co}.
+Texture and quality: ${qu}.
+Camera movement: ${ca}.
+
+Add subtle natural motion:
+lights flicker softly,
+clouds drift slowly,
+stars shimmer,
+film grain moves naturally,
+and the atmosphere feels alive.
+
+The video should feel emotional, surreal, cinematic, poetic, and dreamlike.`;
+  }
+
+  $('outText').textContent = prompt;
+  $('outBadge').textContent = S.type;
+  const box = $('outputBox');
+  box.classList.remove('show');
+  void box.offsetWidth;
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const cb = $('copyBtn');
+  cb.textContent = '📋 복사하기';
+  cb.classList.remove('ok');
+}
+
+// ─────────────────────────────────────────
+// COPY
+// ─────────────────────────────────────────
+async function doCopy() {
+  const text = $('outText').textContent.trim();
+  if (!text) { generate(); return; }
+
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement('textarea');
+    Object.assign(ta.style, { position:'fixed', opacity:'0', top:'0', left:'0' });
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+
+  const btn = $('copyBtn');
+  btn.textContent = '✓ 복사됨!';
+  btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = '📋 복사하기'; btn.classList.remove('ok'); }, 2200);
+}
+
+// ─────────────────────────────────────────
+// RESET
+// ─────────────────────────────────────────
+function doReset() {
+  Object.assign(S, { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:null, emotion:null, color:null, quality:null, camera:null });
+  document.querySelectorAll('#typeGrid .type-btn').forEach(b => b.classList.toggle('on', b.dataset.val === '이미지'));
+  document.querySelectorAll('.opt').forEach(b => b.classList.remove('on'));
+  buildCamera();
+  $('outputBox').classList.remove('show');
+  $('outText').textContent = '';
+}
+
+// ─────────────────────────────────────────
+// STAR BACKGROUND
+// ─────────────────────────────────────────
+(function() {
+  const cv = $('stars');
+  const cx = cv.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+    const n = Math.floor((cv.width * cv.height) / 7000);
+    stars = Array.from({ length: n }, () => ({
+      x: Math.random() * cv.width,
+      y: Math.random() * cv.height,
+      r: Math.random() * 1.1 + 0.2,
+      a: Math.random() * 0.5 + 0.15,
+      spd: (Math.random() * 0.4 + 0.1) * (Math.random() > 0.5 ? 1 : -1)
+    }));
+  }
+
+  function frame() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    stars.forEach(s => {
+      s.a += s.spd * 0.008;
+      if (s.a > 0.75 || s.a < 0.08) s.spd *= -1;
+      cx.beginPath();
+      cx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      cx.fillStyle = `rgba(170, 150, 255, ${s.a})`;
+      cx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  frame();
+})();
+
+// ─────────────────────────────────────────
+// START
+// ─────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
