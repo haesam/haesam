@@ -361,6 +361,20 @@ body {
   font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
 }
 
+/* Multi-select badge */
+.multi-badge {
+  font-size: 0.6rem;
+  color: #a78bfa;
+  background: rgba(124,58,237,0.12);
+  border: 1px solid rgba(139,92,246,0.22);
+  border-radius: 4px;
+  padding: 1px 7px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -486,6 +500,7 @@ body {
       <div class="sec-label">
         <span class="sec-num">06</span>
         <span class="sec-title">판타지 요소</span>
+        <span class="multi-badge">복수선택</span>
       </div>
       <button class="rnd" onclick="rndItem('fantasyEl', this)"><span class="d">🎲</span> 랜덤</button>
     </div>
@@ -498,6 +513,7 @@ body {
       <div class="sec-label">
         <span class="sec-num">07</span>
         <span class="sec-title">감정</span>
+        <span class="multi-badge">복수선택</span>
       </div>
       <button class="rnd" onclick="rndItem('emotion', this)"><span class="d">🎲</span> 랜덤</button>
     </div>
@@ -529,6 +545,7 @@ body {
       <div class="sec-label">
         <span class="sec-num">09</span>
         <span class="sec-title">화질 / 질감</span>
+        <span class="multi-badge">복수선택</span>
       </div>
       <button class="rnd" onclick="rndItem('quality', this)"><span class="d">🎲</span> 랜덤</button>
     </div>
@@ -605,19 +622,24 @@ const D = {
     f: ['핑크 + 퍼플 + 골드', '코발트 블루 + 바이올렛', '오로라 그린 + 퍼플', '네온 블루 + 마젠타', '별빛 실버 + 딥 네이비', '선셋 오렌지 + 은하 퍼플']
   },
   quality: {
-    v: ['VHS 노이즈', '강한 필름 그레인', '35mm 필름 스캔', '소프트 포커스', '빛 번짐과 할레이션', '저조도 필름 사진', '낡은 필름 먼지와 스크래치'],
+    v: ['VHS 노이즈', '강한 필름 그레인', '35mm 필름 스캔', '소프트 포커스', '빛 번짐과 할레이션', '저조도 필름 사진', '낡은 필름 먼지와 스크래치', '글리치 효과'],
     h: ['초고해상도 HDR', '선명한 디지털 시네마', 'IMAX 판타지 룩', '극적인 고대비', '반짝이는 디테일 강화', '몽환적 글로우', '초현실적 선명도']
   },
   camera: {
-    img: ['정면 구도', '광각 구도', '로우앵글', '하이앵글', '항공샷', '멀리서 바라본 구도', '창밖에서 바라본 구도', '차 안에서 바라본 구도'],
-    vid: ['천천히 앞으로 이동', '아주 느린 줌인', '드론처럼 상승', '좌우로 느린 패닝', '손떨림 있는 필름 카메라', '차량 주행 시점', '영화 스틸컷 같은 미세한 움직임', '별빛과 구름이 천천히 흐르는 움직임', '빛이 번지며 꿈처럼 흔들리는 움직임']
+    img: ['정면 구도', '광각 구도', '로우앵글', '하이앵글', '항공샷', '멀리서 바라본 구도', '창밖에서 바라본 구도', '차 안에서 바라본 구도', '어안렌즈'],
+    vid: ['천천히 앞으로 이동', '아주 느린 줌인', '드론처럼 상승', '좌우로 느린 패닝', '손떨림 있는 필름 카메라', '차량 주행 시점', '영화 스틸컷 같은 미세한 움직임', '별빛과 구름이 천천히 흐르는 움직임', '빛이 번지며 꿈처럼 흔들리는 움직임', '어안렌즈']
   }
 };
 
 // ─────────────────────────────────────────
+// MULTI-SELECT KEYS (배열로 저장)
+// ─────────────────────────────────────────
+const MULTI = new Set(['fantasyEl', 'quality', 'emotion']);
+
+// ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
-const S = { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:null, emotion:null, color:null, quality:null, camera:null };
+const S = { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:[], emotion:[], color:null, quality:[], camera:null };
 
 // ─────────────────────────────────────────
 // HELPERS
@@ -625,24 +647,49 @@ const S = { type:'이미지', ratio:null, style:null, scene:null, subject:null, 
 const $ = id => document.getElementById(id);
 const pick = a => a[Math.floor(Math.random() * a.length)];
 
+function pickMulti(pool, min = 1, max = 2) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const count = min + Math.floor(Math.random() * (max - min + 1));
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
 function mkBtns(id, items, key) {
   const el = $(id);
   if (!el) return;
   el.innerHTML = '';
+  const isMulti = MULTI.has(key);
   items.forEach(v => {
     const b = document.createElement('button');
-    b.className = 'opt' + (S[key] === v ? ' on' : '');
+    const active = isMulti ? S[key].includes(v) : S[key] === v;
+    b.className = 'opt' + (active ? ' on' : '');
     b.textContent = v;
     b.dataset.k = key;
     b.dataset.v = v;
-    b.onclick = () => { S[key] = v; sync(key); };
+    b.onclick = () => {
+      if (isMulti) {
+        if (v === '없음') {
+          // "없음" 클릭 시 다른 선택 모두 해제 (토글)
+          S[key] = S[key].includes('없음') ? [] : ['없음'];
+        } else {
+          // 다른 항목 선택 시 "없음" 제거 후 토글
+          S[key] = S[key].filter(x => x !== '없음');
+          const idx = S[key].indexOf(v);
+          if (idx >= 0) S[key].splice(idx, 1); else S[key].push(v);
+        }
+      } else {
+        S[key] = v;
+      }
+      sync(key);
+    };
     el.appendChild(b);
   });
 }
 
 function sync(key) {
+  const isMulti = MULTI.has(key);
   document.querySelectorAll(`.opt[data-k="${key}"]`).forEach(b => {
-    b.classList.toggle('on', b.dataset.v === S[key]);
+    const active = isMulti ? S[key].includes(b.dataset.v) : b.dataset.v === S[key];
+    b.classList.toggle('on', active);
   });
 }
 
@@ -686,24 +733,27 @@ function pickType(btn) {
 // INDIVIDUAL RANDOM
 // ─────────────────────────────────────────
 function rndItem(key, btn) {
-  // Dice spin
-  const d = btn.querySelector('.d');
   btn.classList.remove('spin');
   void btn.offsetWidth;
   btn.classList.add('spin');
   setTimeout(() => btn.classList.remove('spin'), 380);
 
   const pools = {
-    style:    [...D.style.v, ...D.style.f],
-    scene:    [...D.scene.c, ...D.scene.n, ...D.scene.s],
-    subject:  D.subject,
-    fantasyEl:D.fantasyEl,
-    emotion:  D.emotion,
-    color:    [...D.color.v, ...D.color.f],
-    quality:  [...D.quality.v, ...D.quality.h],
-    camera:   S.type === '이미지' ? D.camera.img : D.camera.vid
+    style:     [...D.style.v, ...D.style.f],
+    scene:     [...D.scene.c, ...D.scene.n, ...D.scene.s],
+    subject:   D.subject,
+    fantasyEl: D.fantasyEl.filter(e => e !== '없음'),
+    emotion:   D.emotion,
+    color:     [...D.color.v, ...D.color.f],
+    quality:   [...D.quality.v, ...D.quality.h],
+    camera:    S.type === '이미지' ? D.camera.img : D.camera.vid
   };
-  S[key] = pick(pools[key] || []);
+
+  if (MULTI.has(key)) {
+    S[key] = pickMulti(pools[key] || [], 1, 2);
+  } else {
+    S[key] = pick(pools[key] || []);
+  }
   sync(key);
 }
 
@@ -718,54 +768,54 @@ function setType(t) {
 
 function allRnd() {
   setType(pick(['이미지', '영상']));
-  S.ratio    = pick(D.ratio);                                       sync('ratio');
-  S.style    = pick([...D.style.v, ...D.style.f]);                  sync('style');
-  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);    sync('scene');
-  S.subject  = pick(D.subject);                                     sync('subject');
-  S.fantasyEl= pick(D.fantasyEl);                                   sync('fantasyEl');
-  S.emotion  = pick(D.emotion);                                     sync('emotion');
-  S.color    = pick([...D.color.v, ...D.color.f]);                  sync('color');
-  S.quality  = pick([...D.quality.v, ...D.quality.h]);              sync('quality');
-  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+  S.ratio     = pick(D.ratio);                                           sync('ratio');
+  S.style     = pick([...D.style.v, ...D.style.f]);                      sync('style');
+  S.scene     = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);        sync('scene');
+  S.subject   = pick(D.subject);                                         sync('subject');
+  S.fantasyEl = pickMulti(D.fantasyEl.filter(e => e !== '없음'), 1, 2);  sync('fantasyEl');
+  S.emotion   = pickMulti(D.emotion, 1, 2);                              sync('emotion');
+  S.color     = pick([...D.color.v, ...D.color.f]);                      sync('color');
+  S.quality   = pickMulti([...D.quality.v, ...D.quality.h], 1, 2);       sync('quality');
+  S.camera    = pick(S.type === '이미지' ? D.camera.img : D.camera.vid);  sync('camera');
 }
 
 function vintageRnd() {
-  S.ratio    = pick(D.ratio);                                    sync('ratio');
-  S.style    = pick(D.style.v);                                  sync('style');
-  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);sync('scene');
-  S.subject  = pick(D.subject);                                  sync('subject');
-  S.fantasyEl= '없음';                                           sync('fantasyEl');
-  S.emotion  = pick(D.emotion);                                  sync('emotion');
-  S.color    = pick(D.color.v);                                  sync('color');
-  S.quality  = pick(D.quality.v);                                sync('quality');
-  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+  S.ratio     = pick(D.ratio);                                           sync('ratio');
+  S.style     = pick(D.style.v);                                         sync('style');
+  S.scene     = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);        sync('scene');
+  S.subject   = pick(D.subject);                                         sync('subject');
+  S.fantasyEl = ['없음'];                                                 sync('fantasyEl');
+  S.emotion   = pickMulti(D.emotion, 1, 2);                              sync('emotion');
+  S.color     = pick(D.color.v);                                         sync('color');
+  S.quality   = pickMulti(D.quality.v, 1, 2);                            sync('quality');
+  S.camera    = pick(S.type === '이미지' ? D.camera.img : D.camera.vid);  sync('camera');
 }
 
 function fantasyRnd() {
-  S.ratio    = pick(D.ratio);                                    sync('ratio');
-  S.style    = pick(D.style.f);                                  sync('style');
-  S.scene    = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);sync('scene');
-  S.subject  = pick(D.subject);                                  sync('subject');
-  S.fantasyEl= pick(D.fantasyEl.filter(e => e !== '없음'));      sync('fantasyEl');
-  S.emotion  = pick(D.emotion);                                  sync('emotion');
-  S.color    = pick(D.color.f);                                  sync('color');
-  S.quality  = pick(D.quality.h);                                sync('quality');
-  S.camera   = pick(S.type === '이미지' ? D.camera.img : D.camera.vid); sync('camera');
+  S.ratio     = pick(D.ratio);                                           sync('ratio');
+  S.style     = pick(D.style.f);                                         sync('style');
+  S.scene     = pick([...D.scene.c, ...D.scene.n, ...D.scene.s]);        sync('scene');
+  S.subject   = pick(D.subject);                                         sync('subject');
+  S.fantasyEl = pickMulti(D.fantasyEl.filter(e => e !== '없음'), 1, 3);  sync('fantasyEl');
+  S.emotion   = pickMulti(D.emotion, 1, 2);                              sync('emotion');
+  S.color     = pick(D.color.f);                                         sync('color');
+  S.quality   = pickMulti(D.quality.h, 1, 2);                            sync('quality');
+  S.camera    = pick(S.type === '이미지' ? D.camera.img : D.camera.vid);  sync('camera');
 }
 
 // ─────────────────────────────────────────
 // GENERATE PROMPT
 // ─────────────────────────────────────────
 function generate() {
-  const r = S.ratio      || '출력 비율 미선택';
-  const st = S.style     || '스타일 미선택';
-  const sc = S.scene     || '장면 미선택';
-  const su = S.subject   || '없음';
-  const fe = S.fantasyEl || '없음';
-  const em = S.emotion   || '감정 미선택';
-  const co = S.color     || '색감 미선택';
-  const qu = S.quality   || '화질 미선택';
-  const ca = S.camera    || '카메라 미선택';
+  const r  = S.ratio   || '출력 비율 미선택';
+  const st = S.style   || '스타일 미선택';
+  const sc = S.scene   || '장면 미선택';
+  const su = S.subject || '없음';
+  const fe = S.fantasyEl.length > 0 ? S.fantasyEl.join(', ') : '없음';
+  const em = S.emotion.length   > 0 ? S.emotion.join(', ')   : '감정 미선택';
+  const co = S.color   || '색감 미선택';
+  const qu = S.quality.length   > 0 ? S.quality.join(', ')   : '화질 미선택';
+  const ca = S.camera  || '카메라 미선택';
 
   let prompt;
   if (S.type === '이미지') {
@@ -848,7 +898,7 @@ async function doCopy() {
 // RESET
 // ─────────────────────────────────────────
 function doReset() {
-  Object.assign(S, { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:null, emotion:null, color:null, quality:null, camera:null });
+  Object.assign(S, { type:'이미지', ratio:null, style:null, scene:null, subject:null, fantasyEl:[], emotion:[], color:null, quality:[], camera:null });
   document.querySelectorAll('#typeGrid .type-btn').forEach(b => b.classList.toggle('on', b.dataset.val === '이미지'));
   document.querySelectorAll('.opt').forEach(b => b.classList.remove('on'));
   buildCamera();
