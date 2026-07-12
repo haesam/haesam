@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ADEORA — Design Studio</title>
+
+<!--
+  ADEORA Design Studio — Hero Banner (식스샵 블록용 자체 완결형 버전)
+
+  식스샵 HTML 블록에 넣는 방법:
+  아래 <style> ... </style> 부터 마지막 <script> ... </script> 까지
+  전체를 복사해서 식스샵의 HTML/코드 블록에 붙여넣으면 됩니다.
+  모든 스타일은 .adeora-hero 스코프로 격리되어 있어
+  쇼핑몰의 다른 영역 스타일에 영향을 주지 않습니다.
+-->
+
+<style>
+  /* ============ Font ============ */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  /* ============ Scope: .adeora-hero ============ */
+  .adeora-hero,
+  .adeora-hero *,
+  .adeora-hero *::before,
+  .adeora-hero *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .adeora-hero {
+    /* Design tokens */
+    --adeora-bg: #050B14;            /* Primary Background Base (Navy) */
+    --adeora-gradient-base: #02122C; /* Gradient Base (Darker Navy) */
+    --adeora-text: #FFFFFF;
+    --adeora-text-muted: rgba(255, 255, 255, 0.8);
+    --adeora-text-dim: rgba(255, 255, 255, 0.7);
+    --adeora-border-20: rgba(255, 255, 255, 0.2);
+    --adeora-border-30: rgba(255, 255, 255, 0.3);
+
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--adeora-bg);
+    color: var(--adeora-text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .adeora-hero a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .adeora-hero button {
+    font-family: inherit;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .adeora-hero svg {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ============ Layer 1: Background video ============ */
+  .adeora-hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ============ Layer 2: Video dimming overlay ============ */
+  .adeora-hero__dim {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+  }
+
+  /* ============ Layer 3: Foreground image ============ */
+  .adeora-hero__foreground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80vh;
+    background-image: url('https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_foreground_bg.png');
+    background-size: cover;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
+  /* ============ Layer 4: Bottom vignette ============ */
+  .adeora-hero__vignette-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60vh;
+    background: linear-gradient(
+      to top,
+      #02122c 0%,
+      rgba(2, 18, 44, 0.8) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ============ Layer 5: Top vignette ============ */
+  .adeora-hero__vignette-top {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      #02122cff 0%,
+      #02122cfa 10%,
+      #02122c80 25%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  /* ============ Layer 6: UI content ============ */
+  .adeora-hero__content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+  }
+
+  /* ============ Navbar ============ */
+  .adeora-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 1.5rem;              /* px-6 py-6 */
+  }
+
+  .adeora-nav__logo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .adeora-nav__logo-title {
+    font-size: 1.25rem;           /* mobile */
+    font-weight: 600;
+    letter-spacing: 0.025em;      /* tracking-wide */
+  }
+
+  .adeora-nav__logo-sub {
+    font-size: 0.6rem;            /* mobile */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;        /* tracking-widest */
+    color: var(--adeora-text-dim);
+  }
+
+  .adeora-nav__links {
+    display: none;                /* hidden on mobile/tablet */
+    align-items: center;
+    list-style: none;
+  }
+
+  .adeora-nav__links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 300ms;
+  }
+
+  .adeora-nav__links a:hover {
+    color: var(--adeora-text-dim); /* white/70 */
+  }
+
+  .adeora-nav__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* CTA: "Let's Create" */
+  .adeora-nav__cta {
+    display: none;                /* desktop only */
+    align-items: center;
+    gap: 0.75rem;                 /* space-x-3 */
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .adeora-icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;                  /* w-8 */
+    height: 2rem;                 /* h-8 */
+    border-radius: 9999px;
+    border: 1px solid var(--adeora-border-30);
+    transition: background-color 300ms, border-color 300ms;
+  }
+
+  .adeora-icon-circle svg {
+    transition: color 300ms;
+  }
+
+  .adeora-nav__cta:hover .adeora-icon-circle,
+  .adeora-pill:hover .adeora-icon-circle {
+    background-color: #FFFFFF;
+    border-color: #FFFFFF;
+  }
+
+  .adeora-nav__cta:hover .adeora-icon-circle svg,
+  .adeora-pill:hover .adeora-icon-circle svg {
+    color: var(--adeora-bg);      /* icon inverts to dark navy */
+  }
+
+  /* Mobile menu toggle */
+  .adeora-nav__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .adeora-nav__toggle .adeora-icon-close { display: none; }
+  .adeora-hero.is-menu-open .adeora-nav__toggle .adeora-icon-menu { display: none; }
+  .adeora-hero.is-menu-open .adeora-nav__toggle .adeora-icon-close { display: block; }
+
+  /* Mobile dropdown menu */
+  .adeora-nav__mobile {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    flex-direction: column;
+    padding: 1rem 1.5rem 1.5rem;
+    background-color: rgba(2, 18, 44, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid var(--adeora-border-20);
+  }
+
+  .adeora-hero.is-menu-open .adeora-nav__mobile {
+    display: flex;
+  }
+
+  .adeora-nav__mobile a {
+    padding: 0.875rem 0;
+    font-size: 1rem;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: color 300ms;
+  }
+
+  .adeora-nav__mobile a:last-child {
+    border-bottom: none;
+  }
+
+  .adeora-nav__mobile a:hover {
+    color: var(--adeora-text-dim);
+  }
+
+  .adeora-nav-wrap {
+    position: relative;
+  }
+
+  /* ============ Hero content ============ */
+  .adeora-main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1.5rem;
+    margin-top: 3rem;             /* mt-12 mobile */
+  }
+
+  .adeora-main__inner {
+    max-width: 56rem;             /* max-w-4xl */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .adeora-main__subtitle {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;        /* tracking-widest */
+    color: var(--adeora-text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .adeora-main__headline {
+    font-size: 3rem;              /* mobile */
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;     /* tracking-tight */
+    margin-bottom: 1.5rem;
+  }
+
+  .adeora-main__headline .adeora-br-md {
+    display: none;
+  }
+
+  .adeora-main__desc {
+    font-size: 1rem;
+    line-height: 1.625;
+    font-weight: 400;
+    color: var(--adeora-text-muted);
+    max-width: 40rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* "View Our Work" pill button */
+  .adeora-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 0.5rem 1.5rem; /* py-2 pr-2 pl-6 */
+    border-radius: 9999px;
+    border: 1px solid var(--adeora-border-20);
+    background-color: transparent;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--adeora-text);
+    transition: background-color 300ms;
+  }
+
+  .adeora-pill:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* ============ Entrance animations ============ */
+  @keyframes adeora-fade-up-20 {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes adeora-fade-up-30 {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .adeora-main__subtitle {
+    animation: adeora-fade-up-20 0.6s ease-out both;
+  }
+
+  .adeora-main__headline {
+    animation: adeora-fade-up-30 0.8s ease-out 0.1s both;
+  }
+
+  .adeora-main__desc {
+    animation: adeora-fade-up-20 0.8s ease-out 0.2s both;
+  }
+
+  .adeora-pill {
+    animation: adeora-fade-up-20 0.8s ease-out 0.3s both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .adeora-main__subtitle,
+    .adeora-main__headline,
+    .adeora-main__desc,
+    .adeora-pill {
+      animation: none;
+    }
+  }
+
+  /* ============ Tablet (md: 768px) ============ */
+  @media (min-width: 768px) {
+    .adeora-nav {
+      padding: 1.5rem 3rem;       /* px-12 */
+    }
+
+    .adeora-main {
+      padding: 0 3rem;
+    }
+
+    .adeora-main__headline {
+      font-size: 4.5rem;
+    }
+
+    .adeora-main__headline .adeora-br-md {
+      display: block;             /* strategic line break */
+    }
+
+    .adeora-main__subtitle {
+      font-size: 0.875rem;
+    }
+
+    .adeora-main__desc {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* ============ Desktop (lg: 1024px) ============ */
+  @media (min-width: 1024px) {
+    .adeora-nav {
+      padding: 1.5rem 6rem;       /* px-24 */
+    }
+
+    .adeora-nav__logo-title {
+      font-size: 1.5rem;
+    }
+
+    .adeora-nav__logo-sub {
+      font-size: 0.75rem;
+    }
+
+    .adeora-nav__links {
+      display: flex;
+      gap: 2.5rem;                /* space-x-10 */
+    }
+
+    .adeora-nav__cta {
+      display: flex;
+    }
+
+    .adeora-nav__toggle,
+    .adeora-nav__mobile {
+      display: none !important;
+    }
+
+    .adeora-main {
+      padding: 0 6rem;
+      margin-top: 5rem;           /* mt-20 desktop */
+    }
+
+    .adeora-main__headline {
+      font-size: 5.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<section class="adeora-hero" id="adeoraHero">
+
+  <!-- Layer 1: Background video -->
+  <video
+    class="adeora-hero__video"
+    src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_cloud_animation_video.mp4"
+    autoplay
+    loop
+    muted
+    playsinline
+    aria-hidden="true"
+  ></video>
+
+  <!-- Layer 2: Dimming overlay -->
+  <div class="adeora-hero__dim" aria-hidden="true"></div>
+
+  <!-- Layer 3: Foreground image -->
+  <div class="adeora-hero__foreground" aria-hidden="true"></div>
+
+  <!-- Layer 4: Bottom vignette -->
+  <div class="adeora-hero__vignette-bottom" aria-hidden="true"></div>
+
+  <!-- Layer 5: Top vignette -->
+  <div class="adeora-hero__vignette-top" aria-hidden="true"></div>
+
+  <!-- Layer 6: UI content -->
+  <div class="adeora-hero__content">
+
+    <div class="adeora-nav-wrap">
+      <nav class="adeora-nav" aria-label="주 메뉴">
+        <!-- Logo -->
+        <a href="#" class="adeora-nav__logo">
+          <span class="adeora-nav__logo-title">ADEORA</span>
+          <span class="adeora-nav__logo-sub">Design Studio</span>
+        </a>
+
+        <!-- Desktop links -->
+        <ul class="adeora-nav__links">
+          <li><a href="#work">Work</a></li>
+          <li><a href="#studio">Studio</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#journal">Journal</a></li>
+        </ul>
+
+        <div class="adeora-nav__right">
+          <!-- Desktop CTA -->
+          <a href="#contact" class="adeora-nav__cta">
+            <span>Let's Create</span>
+            <span class="adeora-icon-circle">
+              <!-- Plus icon (16px) -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="M12 5v14"/>
+              </svg>
+            </span>
+          </a>
+
+          <!-- Mobile menu toggle -->
+          <button type="button" class="adeora-nav__toggle" aria-expanded="false" aria-controls="adeoraMobileMenu" aria-label="메뉴 열기">
+            <!-- Menu icon -->
+            <svg class="adeora-icon-menu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+            <!-- Close icon -->
+            <svg class="adeora-icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Mobile dropdown menu -->
+      <div class="adeora-nav__mobile" id="adeoraMobileMenu">
+        <a href="#work">Work</a>
+        <a href="#studio">Studio</a>
+        <a href="#services">Services</a>
+        <a href="#journal">Journal</a>
+        <a href="#contact">Let's Create</a>
+      </div>
+    </div>
+
+    <!-- Hero content -->
+    <main class="adeora-main">
+      <div class="adeora-main__inner">
+        <p class="adeora-main__subtitle">We Design Experiences</p>
+
+        <h1 class="adeora-main__headline">
+          Crafting Digital<br class="adeora-br-md" />
+          Experiences
+        </h1>
+
+        <p class="adeora-main__desc">
+          Adeora is a design studio shaping bold digital products and brand
+          experiences. We blend strategy, design, and motion to craft work
+          that moves people.
+        </p>
+
+        <a href="#work" class="adeora-pill">
+          <span>View Our Work</span>
+          <span class="adeora-icon-circle">
+            <!-- Arrow right icon (16px) -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+    </main>
+
+  </div>
+</section>
+
+<script>
+  (function () {
+    var hero = document.getElementById('adeoraHero');
+    if (!hero) return;
+
+    var toggle = hero.querySelector('.adeora-nav__toggle');
+    var mobileMenu = hero.querySelector('.adeora-nav__mobile');
+
+    toggle.addEventListener('click', function () {
+      var open = hero.classList.toggle('is-menu-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    });
+
+    // 메뉴 항목 클릭 시 드롭다운 닫기
+    mobileMenu.addEventListener('click', function (e) {
+      if (e.target.closest('a')) {
+        hero.classList.remove('is-menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', '메뉴 열기');
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
