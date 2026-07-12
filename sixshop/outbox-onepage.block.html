@@ -1,0 +1,720 @@
+<!--
+	Sixshop blockmaker 블록 소스: OUTBOX 크리에이티브 원페이지
+	블록 ID: 6a53a5aa65b2c5d1c6c18ed8 (스토어: 31port)
+	{{property.*}} 는 블록 설정 패널에서 편집하는 값으로 렌더 시 치환됩니다.
+-->
+<style>
+
+	/* ===== 루트 & 공통 ===== */
+	.ob-root {
+		position: relative;
+		background: {{property.brandDarker}};
+		color: #ffffff;
+		font-family: var(--font-family-body);
+		font-weight: var(--font-weight-body);
+		line-height: 1.5;
+		padding: {{property.pmTop}}px {{property.pmRight}}px {{property.pmBottom}}px {{property.pmLeft}}px;
+	}
+	.ob-root a { color: inherit; text-decoration: none; }
+	.ob-root video { pointer-events: none; }
+	.ob-root h1, .ob-root h2, .ob-root h3 {
+		font-family: var(--font-family-heading);
+		font-weight: var(--font-weight-heading);
+	}
+	.ob-label {
+		color: {{property.brandOrange}};
+		text-transform: uppercase;
+		letter-spacing: 0.3em;
+		font-weight: 700;
+		font-size: 0.8rem;
+	}
+
+	/* 글로벌 그리드 패턴 오버레이 */
+	.ob-grid-overlay {
+		position: fixed; inset: 0; z-index: 20;
+		pointer-events: none; opacity: 0.1;
+		background-image:
+			linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+		background-size: 48px 48px;
+	}
+
+	/* ===== 네비게이션 바 ===== */
+	.ob-nav {
+		position: fixed; top: 1rem; left: 50%;
+		transform: translateX(-50%);
+		width: calc(100% - 2rem); max-width: 80rem;
+		z-index: 50;
+		display: flex; align-items: center;
+		padding: 0.7rem 1.25rem;
+		border-radius: 9999px;
+		border: 1px solid transparent;
+		filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
+		transition: background-color 0.4s ease, border-color 0.4s ease;
+	}
+	.ob-nav.is-scrolled {
+		background: rgba(255,255,255,0.1);
+		-webkit-backdrop-filter: blur(24px);
+		backdrop-filter: blur(24px);
+		border-color: rgba(255,255,255,0.2);
+	}
+	.ob-logo {
+		margin-right: auto;
+		font-family: var(--font-family-heading);
+		font-weight: 900;
+		font-size: 1.5rem;
+		letter-spacing: -0.03em;
+		line-height: 1;
+	}
+	.ob-logo span { color: rgba(255,255,255,0.7); }
+	.ob-nav-links { display: none; }
+	.ob-menu-btn {
+		display: flex; align-items: center; justify-content: center;
+		width: 2.75rem; height: 2.75rem;
+		border-radius: 9999px;
+		background: transparent; border: none;
+		color: #fff; cursor: pointer;
+		transition: background-color 0.3s;
+	}
+	.ob-menu-btn:hover { background: rgba(255,255,255,0.15); }
+
+	/* 모바일 오버레이 메뉴 */
+	.ob-mobile-menu {
+		position: fixed; inset: 0; z-index: 100;
+		background: {{property.brandDarkest}};
+		display: flex; flex-direction: column;
+		align-items: center; justify-content: center;
+		gap: 1.75rem;
+		transform: translateY(-100%);
+		visibility: hidden;
+		transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1), visibility 0.6s;
+	}
+	.ob-mobile-menu.open { transform: translateY(0); visibility: visible; }
+	.ob-mobile-menu a {
+		font-family: var(--font-family-heading);
+		font-weight: 900;
+		font-size: clamp(2.25rem, 8vw, 3.75rem);
+		letter-spacing: -0.02em;
+		transition: transform 0.3s, color 0.3s;
+	}
+	.ob-mobile-menu a:hover { transform: scale(1.08); color: {{property.brandOrange}}; }
+	.ob-close-btn {
+		position: absolute; top: 1.5rem; right: 1.5rem;
+		display: flex; align-items: center; justify-content: center;
+		width: 3rem; height: 3rem;
+		border-radius: 9999px;
+		background: rgba(255,255,255,0.1); border: none;
+		color: #fff; cursor: pointer;
+		transition: background-color 0.3s;
+	}
+	.ob-close-btn:hover { background: rgba(255,255,255,0.25); }
+
+	/* ===== 히어로 (스크롤 스크럽) ===== */
+	.ob-hero { position: relative; height: 400vh; z-index: 10; }
+	.ob-hero-sticky {
+		position: sticky; top: 0;
+		height: 100vh; overflow: hidden;
+		background: {{property.brandDarker}};
+		will-change: transform, opacity;
+		transform-origin: center center;
+	}
+	.ob-hero-bg {
+		position: absolute; inset: 0;
+		width: 100%; height: 100%;
+		object-fit: cover; opacity: 0.2;
+	}
+	.ob-circles { position: absolute; inset: 0; z-index: 1; }
+	.ob-circle {
+		position: absolute; top: 50%; left: 50%;
+		width: 60vmin; height: 60vmin;
+		margin: -30vmin 0 0 -30vmin;
+		border-radius: 50%;
+		will-change: transform, opacity;
+	}
+	.ob-circle-1 { background: {{property.brandOrange}}; overflow: hidden; transform: scale(0.5); }
+	.ob-circle-1 video {
+		width: 100%; height: 100%; object-fit: cover;
+		mix-blend-mode: overlay; opacity: 0.5;
+	}
+	.ob-circle-2 { background: #c93a1c; transform: scale(0.35); }
+	.ob-circle-3 { background: #8c2510; transform: scale(0.25); }
+	.ob-circle-4 { background: #521307; transform: scale(0.18); }
+
+	/* B [O] X 초대형 타이포 */
+	.ob-letters { position: absolute; inset: 0; z-index: 3; pointer-events: none; will-change: opacity; }
+	.ob-letters span {
+		position: absolute; top: 50%;
+		transform: translateY(-50%);
+		font-family: var(--font-family-heading);
+		font-weight: 900;
+		font-size: 30vmin;
+		line-height: 1;
+		letter-spacing: -0.05em;
+	}
+	.ob-letter-b { right: 50%; margin-right: 14vmin; }
+	.ob-letter-x { left: 50%; margin-left: 11vmin; }
+
+	/* 히어로 콘텐츠 시퀀스 */
+	.ob-hero-content {
+		position: absolute; inset: 0; z-index: 4;
+		display: flex; flex-direction: column;
+		align-items: center; justify-content: center;
+		text-align: center;
+		padding: 0 1.5rem;
+		opacity: 0; pointer-events: none;
+		will-change: transform, opacity;
+	}
+	.ob-hero-content h1, .ob-hero-content h2 {
+		font-size: clamp(3rem, 10vw, 6rem);
+		letter-spacing: -0.03em;
+		line-height: 1.05;
+		max-width: 60rem;
+	}
+	.ob-hero-content .ob-label { margin-bottom: 1.25rem; }
+	.ob-cta {
+		display: inline-flex; align-items: center; gap: 0.6rem;
+		margin-top: 2.25rem;
+		background: {{property.brandOrange}};
+		color: #fff; font-weight: 700;
+		padding: 1rem 2rem;
+		border-radius: 9999px;
+		transition: background-color 0.3s, transform 0.3s;
+	}
+	.ob-cta:hover { background: {{property.brandDark}}; transform: translateY(-2px); }
+	.ob-cta-arrow { transition: transform 0.3s; }
+	.ob-cta:hover .ob-cta-arrow { transform: translateX(5px); }
+
+	/* ===== 서비스 (스태킹 카드) ===== */
+	.ob-services {
+		position: relative;
+		height: 300vh;
+		margin-top: -100vh;
+		z-index: 40;
+	}
+	.ob-services-sticky {
+		position: sticky; top: 0;
+		height: 100vh; overflow: hidden;
+		display: flex; flex-direction: column;
+		justify-content: center;
+		gap: 2rem;
+		padding: 5.5rem 1.5rem 2rem;
+	}
+	.ob-services-text h2 {
+		font-size: clamp(2.25rem, 5vw, 3.75rem);
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		margin: 0.9rem 0 1rem;
+	}
+	.ob-services-text .ob-desc { color: rgba(226,232,240,0.85); max-width: 26rem; }
+	.ob-cards { position: relative; width: 100%; height: 50vh; }
+	.ob-card {
+		position: absolute; left: 0; right: 0;
+		height: calc(100% - 80px);
+		border-radius: 24px;
+		overflow: hidden;
+		padding: 2rem;
+		display: flex; align-items: flex-end;
+		transform: translateY(110%);
+		will-change: transform;
+		transform-origin: top center;
+		box-shadow: 0 -12px 40px rgba(0,0,0,0.35);
+	}
+	.ob-card:nth-child(1) { top: 0; transform: translateY(0); }
+	.ob-card:nth-child(2) { top: 40px; }
+	.ob-card:nth-child(3) { top: 80px; }
+	.ob-card video {
+		position: absolute; inset: 0;
+		width: 100%; height: 100%;
+		object-fit: cover; opacity: 0.2;
+	}
+	.ob-card-content { position: relative; z-index: 1; }
+	.ob-card-num {
+		display: block;
+		color: rgba(255,255,255,0.6);
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		margin-bottom: 0.5rem;
+	}
+	.ob-card-content h3 {
+		font-size: clamp(1.75rem, 4vw, 2.75rem);
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		margin-bottom: 0.6rem;
+	}
+	.ob-card-content p { color: rgba(226,232,240,0.9); max-width: 34rem; }
+
+	/* ===== 포트폴리오 (아코디언) ===== */
+	.ob-folio {
+		position: relative; z-index: 40;
+		background: #111111;
+		min-height: 100vh;
+		display: flex; flex-direction: column;
+		justify-content: center;
+		gap: 2.5rem;
+		padding: 6rem 1.5rem;
+	}
+	.ob-folio-head h2 {
+		font-size: clamp(2.25rem, 5vw, 3.75rem);
+		letter-spacing: -0.02em;
+		line-height: 1.1;
+		margin-top: 0.9rem;
+	}
+	.ob-folio-list {
+		display: flex; flex-direction: column;
+		gap: 0.6rem;
+		height: 75vh;
+	}
+	.ob-folio-item {
+		position: relative;
+		flex: 1;
+		display: block;
+		border-radius: 1rem;
+		overflow: hidden;
+		transition: flex 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+	.ob-folio-item img {
+		position: absolute; inset: 0;
+		width: 100%; height: 100%;
+		object-fit: cover;
+		opacity: 0.5;
+		filter: blur(4px);
+		transform: scale(1.05);
+		transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), filter 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+	.ob-folio-overlay {
+		position: absolute; inset: 0;
+		background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0) 55%);
+	}
+	.ob-folio-item.active { flex: 4; }
+	.ob-folio-item.active img { opacity: 1; filter: none; transform: none; }
+	.ob-folio-info {
+		position: absolute; left: 1.25rem; right: 1.25rem; bottom: 1.1rem;
+		opacity: 0;
+		transform: translateY(10px);
+		transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+		white-space: normal;
+	}
+	.ob-folio-item.active .ob-folio-info { opacity: 1; transform: none; }
+	.ob-folio-info h3 {
+		font-size: clamp(1.4rem, 3vw, 2rem);
+		letter-spacing: -0.02em;
+		line-height: 1.15;
+	}
+	.ob-folio-info p {
+		color: rgba(255,255,255,0.7);
+		text-transform: uppercase;
+		letter-spacing: 0.2em;
+		font-size: 0.75rem;
+		margin-top: 0.35rem;
+	}
+
+	/* ===== 푸터 (비디오 텍스트 마스크) ===== */
+	.ob-footer {
+		position: relative;
+		height: 100vh;
+		background: {{property.brandDarkest}};
+		display: flex; flex-direction: column;
+	}
+	.ob-knockout {
+		position: relative;
+		flex: 1;
+		mix-blend-mode: screen;
+		overflow: hidden;
+	}
+	.ob-knockout video {
+		position: absolute; inset: 0;
+		width: 100%; height: 100%;
+		object-fit: cover;
+	}
+	.ob-knockout-text {
+		position: absolute; inset: 0;
+		background: #000000;
+		mix-blend-mode: multiply;
+		display: flex; align-items: center; justify-content: center;
+	}
+	.ob-knockout-text span {
+		font-family: var(--font-family-heading);
+		font-weight: 900;
+		font-size: 12vw;
+		letter-spacing: -0.04em;
+		line-height: 1;
+		white-space: nowrap;
+		color: #ffffff;
+		transition: color 0.5s ease;
+		cursor: pointer;
+	}
+	.ob-knockout-text span:hover { color: {{property.brandOrange}}; }
+	.ob-footer-bottom {
+		position: relative; z-index: 1;
+		display: flex; flex-direction: column;
+		gap: 1rem;
+		align-items: center;
+		padding: 1.5rem 2rem 2.5rem;
+		font-size: 0.78rem;
+		color: rgba(255,255,255,0.7);
+		text-transform: uppercase;
+		letter-spacing: 0.15em;
+	}
+	.ob-footer-links { display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: center; }
+	.ob-footer-links a { transition: color 0.3s; }
+	.ob-footer-links a:hover { color: {{property.brandOrange}}; }
+
+	/* ===== 반응형: 태블릿 이상 ===== */
+	@media (min-width: 768px) {
+		.ob-root { padding: {{property.pdTop}}px {{property.pdRight}}px {{property.pdBottom}}px {{property.pdLeft}}px; }
+		.ob-nav { top: 1.5rem; width: calc(100% - 3rem); padding: 0.8rem 1.75rem; }
+		.ob-logo { font-size: 1.875rem; }
+		.ob-footer-bottom { flex-direction: row; justify-content: space-between; }
+		.ob-folio-list { flex-direction: row; height: 60vh; }
+		.ob-folio-item.active { flex: 5; }
+		.ob-folio-info { white-space: nowrap; left: 1.5rem; bottom: 1.4rem; }
+		.ob-cards { height: 55vh; }
+		.ob-card { padding: 2.75rem; }
+	}
+
+	/* ===== 반응형: 데스크톱 ===== */
+	@media (min-width: 1024px) {
+		.ob-nav-links { display: flex; gap: 2rem; margin-right: 2rem; }
+		.ob-nav-links a {
+			font-size: 0.8rem; font-weight: 700;
+			text-transform: uppercase; letter-spacing: 0.2em;
+			transition: color 0.3s;
+		}
+		.ob-nav-links a:hover { color: {{property.brandOrange}}; }
+		.ob-services-sticky {
+			flex-direction: row;
+			align-items: center;
+			gap: 4rem;
+			padding: 6rem 3rem 3rem;
+		}
+		.ob-services-text { width: 38%; }
+		.ob-cards { width: 62%; height: 60vh; }
+		.ob-folio { padding: 6rem 3rem; }
+	}
+
+</style>
+
+<template>
+
+	<div class="ob-root">
+
+		<!-- 글로벌 그리드 패턴 오버레이 -->
+		<div class="ob-grid-overlay"></div>
+
+		<!-- 네비게이션 바 -->
+		<nav class="ob-nav">
+			<a class="ob-logo" href="#ob-top">{{property.logoPart1}}<span>{{property.logoPart2}}</span></a>
+			<div class="ob-nav-links">
+				{{#each property.navLinks}}
+				<a href="{{link.value}}">{{label}}</a>
+				{{/each}}
+			</div>
+			<button type="button" class="ob-menu-btn" data-action="open-menu" aria-label="메뉴 열기">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="17" x2="20" y2="17"></line></svg>
+			</button>
+		</nav>
+
+		<!-- 모바일 오버레이 메뉴 -->
+		<div class="ob-mobile-menu">
+			<button type="button" class="ob-close-btn" data-action="close-menu" aria-label="메뉴 닫기">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
+			</button>
+			{{#each property.navLinks}}
+			<a href="{{link.value}}" data-action="close-menu">{{label}}</a>
+			{{/each}}
+		</div>
+
+		<!-- 히어로: 스크롤 스크럽 인터랙션 -->
+		<section class="ob-hero" id="ob-top">
+			<div class="ob-hero-sticky">
+				{{#if property.heroBgVideo}}
+				<video class="ob-hero-bg" src="{{property.heroBgVideo}}" autoplay loop muted playsinline></video>
+				{{/if}}
+				<div class="ob-circles">
+					<div class="ob-circle ob-circle-1">
+						{{#if property.heroCircleVideo}}
+						<video src="{{property.heroCircleVideo}}" autoplay loop muted playsinline></video>
+						{{/if}}
+					</div>
+					<div class="ob-circle ob-circle-2"></div>
+					<div class="ob-circle ob-circle-3"></div>
+					<div class="ob-circle ob-circle-4"></div>
+				</div>
+				<div class="ob-letters">
+					<span class="ob-letter-b">{{property.heroLetterLeft}}</span>
+					<span class="ob-letter-x">{{property.heroLetterRight}}</span>
+				</div>
+				<div class="ob-hero-content ob-hero-content-1">
+					<p class="ob-label">{{property.hero1Label}}</p>
+					<h1>{{property.hero1Title}}</h1>
+				</div>
+				<div class="ob-hero-content ob-hero-content-2">
+					<p class="ob-label">{{property.hero2Label}}</p>
+					<h2>{{property.hero2Title}}</h2>
+					<a class="ob-cta" href="{{property.heroCtaLink.value}}">
+						<span>{{property.heroCtaLabel}}</span>
+						<svg class="ob-cta-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
+					</a>
+				</div>
+			</div>
+		</section>
+
+		<!-- 서비스: 스태킹 카드 -->
+		<section class="ob-services" id="ob-services">
+			<div class="ob-services-sticky">
+				<div class="ob-services-text">
+					<p class="ob-label">{{property.servicesLabel}}</p>
+					<h2>{{property.servicesTitle}}</h2>
+					<p class="ob-desc">{{property.servicesDesc}}</p>
+				</div>
+				<div class="ob-cards">
+					{{#each property.serviceCards}}
+					<div class="ob-card" style="background-color: {{cardColor}};">
+						{{#if cardVideo}}
+						<video src="{{cardVideo}}" autoplay loop muted playsinline></video>
+						{{/if}}
+						<div class="ob-card-content">
+							<span class="ob-card-num">{{num}}</span>
+							<h3>{{cardTitle}}</h3>
+							<p>{{cardDesc}}</p>
+						</div>
+					</div>
+					{{/each}}
+				</div>
+			</div>
+		</section>
+
+		<!-- 포트폴리오: 인터랙티브 아코디언 -->
+		<section class="ob-folio" id="ob-work">
+			<div class="ob-folio-head">
+				<p class="ob-label">{{property.folioLabel}}</p>
+				<h2>{{property.folioTitle}}</h2>
+			</div>
+			<div class="ob-folio-list">
+				{{#each property.folioItems}}
+				<a class="ob-folio-item {{#if @first}}active{{/if}}" href="{{itemLink.value}}">
+					<img src="{{itemImage}}" alt="{{itemName}}" loading="lazy">
+					<div class="ob-folio-overlay"></div>
+					<div class="ob-folio-info">
+						<h3>{{itemName}}</h3>
+						<p>{{itemCategory}}</p>
+					</div>
+				</a>
+				{{/each}}
+			</div>
+		</section>
+
+		<!-- 푸터: 비디오 텍스트 마스크 -->
+		<footer class="ob-footer" id="ob-contact">
+			<div class="ob-knockout">
+				{{#if property.footerVideo}}
+				<video src="{{property.footerVideo}}" autoplay loop muted playsinline></video>
+				{{/if}}
+				<div class="ob-knockout-text">
+					<span>{{property.footerText}}</span>
+				</div>
+			</div>
+			<div class="ob-footer-bottom">
+				<span>{{property.footerCopyright}}</span>
+				<div class="ob-footer-links">
+					{{#each property.footerLinks}}
+					<a href="{{link.value}}" target="_blank" rel="noopener">{{label}}</a>
+					{{/each}}
+				</div>
+			</div>
+		</footer>
+
+	</div>
+
+</template>
+
+<script>
+
+	const container = bm.container;
+
+	const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+	// 입력 구간 [i1, i2]의 진행도를 출력 구간 [o1, o2]로 매핑 (구간 밖은 클램프)
+	const remap = (v, i1, i2, o1, o2) => {
+		if (i1 === i2) return o2;
+		return o1 + (o2 - o1) * clamp((v - i1) / (i2 - i1), 0, 1);
+	};
+
+	// 동심원 스케일 타임라인: [시작, 끝] 진행도 / [시작, 끝] 스케일 / 페이드아웃 구간
+	const CIRCLE_ANIM = [
+		{ start: 0.03, end: 0.55, from: 0.50, to: 5.0, fade: null },
+		{ start: 0.10, end: 0.60, from: 0.35, to: 4.0, fade: [0.35, 0.50] },
+		{ start: 0.15, end: 0.62, from: 0.25, to: 3.2, fade: [0.38, 0.52] },
+		{ start: 0.20, end: 0.64, from: 0.18, to: 2.6, fade: [0.40, 0.54] }
+	];
+
+	let els = null;
+	let ticking = false;
+
+	function cacheEls() {
+		els = {
+			nav: container.querySelector('.ob-nav'),
+			hero: container.querySelector('.ob-hero'),
+			heroSticky: container.querySelector('.ob-hero-sticky'),
+			circles: Array.prototype.slice.call(container.querySelectorAll('.ob-circle')),
+			letters: container.querySelector('.ob-letters'),
+			content1: container.querySelector('.ob-hero-content-1'),
+			content2: container.querySelector('.ob-hero-content-2'),
+			services: container.querySelector('.ob-services'),
+			cards: Array.prototype.slice.call(container.querySelectorAll('.ob-card'))
+		};
+	}
+
+	function updateHero(vh) {
+		if (!els.hero || !els.heroSticky) return;
+		const rect = els.hero.getBoundingClientRect();
+		const total = Math.max(rect.height - vh, 1);
+		const p = clamp(-rect.top / total, 0, 1);
+
+		// 마지막 25% 구간: 축소 + 라운딩 + 페이드아웃
+		const exit = remap(p, 0.75, 1, 0, 1);
+		els.heroSticky.style.transform = 'translateY(' + (-8 * exit) + 'vh) scale(' + (1 - 0.3 * exit) + ')';
+		els.heroSticky.style.borderRadius = (60 * exit) + 'px';
+		els.heroSticky.style.opacity = String(1 - exit);
+
+		// 동심원 스케일 업
+		els.circles.forEach((c, i) => {
+			const a = CIRCLE_ANIM[i];
+			if (!a) return;
+			c.style.transform = 'scale(' + remap(p, a.start, a.end, a.from, a.to) + ')';
+			if (a.fade) c.style.opacity = String(remap(p, a.fade[0], a.fade[1], 1, 0));
+		});
+
+		// B [O] X 타이포: 초반 5%에서 페이드아웃
+		if (els.letters) els.letters.style.opacity = String(remap(p, 0, 0.05, 1, 0));
+
+		// 콘텐츠 1: 등장 후 퇴장
+		if (els.content1) {
+			const o = Math.min(remap(p, 0.15, 0.22, 0, 1), remap(p, 0.38, 0.45, 1, 0));
+			els.content1.style.opacity = String(o);
+			els.content1.style.transform = 'translateY(' + (remap(p, 0.15, 0.22, 50, 0) + remap(p, 0.38, 0.45, 0, -50)) + 'px)';
+		}
+
+		// 콘텐츠 2: 등장 후 유지
+		if (els.content2) {
+			const o = remap(p, 0.45, 0.58, 0, 1);
+			els.content2.style.opacity = String(o);
+			els.content2.style.transform = 'translateY(' + remap(p, 0.45, 0.58, 50, 0) + 'px)';
+			els.content2.style.pointerEvents = o > 0.5 ? 'auto' : 'none';
+		}
+	}
+
+	function updateServices(vh) {
+		if (!els.services || !els.cards.length) return;
+		const rect = els.services.getBoundingClientRect();
+		const total = Math.max(rect.height - vh, 1);
+		const q = clamp(-rect.top / total, 0, 1);
+		const n = els.cards.length;
+		const seg = n > 1 ? 0.9 / (n - 1) : 1;
+
+		// 각 카드의 등장 진행도 (첫 카드는 항상 등장 완료)
+		const enters = els.cards.map((_, i) => {
+			if (i === 0) return 1;
+			const s = 0.05 + (i - 1) * seg;
+			return remap(q, s, s + seg * 0.8, 0, 1);
+		});
+
+		els.cards.forEach((card, i) => {
+			const y = (1 - enters[i]) * 110;
+			let covered = 0;
+			for (let j = i + 1; j < n; j++) covered += enters[j];
+			card.style.transform = 'translateY(' + y + '%) scale(' + (1 - 0.05 * covered) + ')';
+		});
+	}
+
+	function update() {
+		ticking = false;
+		if (!els) return;
+		const vh = window.innerHeight || 1;
+		if (els.nav) els.nav.classList.toggle('is-scrolled', (window.scrollY || 0) > 50);
+		updateHero(vh);
+		updateServices(vh);
+	}
+
+	function requestTick() {
+		if (!ticking) {
+			ticking = true;
+			requestAnimationFrame(update);
+		}
+	}
+
+	function setActiveFolio(item) {
+		container.querySelectorAll('.ob-folio-item').forEach(el => {
+			el.classList.toggle('active', el === item);
+		});
+	}
+
+	function toggleMenu(open) {
+		const menu = container.querySelector('.ob-mobile-menu');
+		if (!menu) return;
+		menu.classList.toggle('open', open);
+		document.body.style.overflow = open ? 'hidden' : '';
+	}
+
+	container.addEventListener('click', (e) => {
+		const actionEl = e.target.closest('[data-action]');
+		if (actionEl) {
+			if (actionEl.dataset.action === 'open-menu') {
+				e.preventDefault();
+				return toggleMenu(true);
+			}
+			if (actionEl.dataset.action === 'close-menu') toggleMenu(false);
+		}
+
+		// 포트폴리오: 비활성 항목 첫 클릭은 활성화만 (터치 대응)
+		const folio = e.target.closest('.ob-folio-item');
+		if (folio && !folio.classList.contains('active')) {
+			e.preventDefault();
+			return setActiveFolio(folio);
+		}
+
+		// 블록 내부 앵커는 부드럽게 스크롤
+		const anchor = e.target.closest('a[href^="#"]');
+		if (anchor) {
+			const href = anchor.getAttribute('href');
+			if (href === '#') return e.preventDefault();
+			let target = null;
+			try { target = container.querySelector(href); } catch (err) { target = null; }
+			if (target) {
+				e.preventDefault();
+				target.scrollIntoView({ behavior: 'smooth' });
+			}
+		}
+	}, true);
+
+	// 포트폴리오: 데스크톱 호버 / 키보드 포커스 시 확장
+	container.addEventListener('mouseover', (e) => {
+		if (!window.matchMedia('(hover: hover)').matches) return;
+		const folio = e.target.closest('.ob-folio-item');
+		if (folio) setActiveFolio(folio);
+	});
+	container.addEventListener('focusin', (e) => {
+		const folio = e.target.closest('.ob-folio-item');
+		if (folio) setActiveFolio(folio);
+	});
+
+	const onScroll = () => requestTick();
+	const onResize = () => requestTick();
+	window.addEventListener('scroll', onScroll, { passive: true });
+	window.addEventListener('resize', onResize);
+
+	// 에디터 프리뷰: 설정 변경으로 재렌더링되면 요소 캐시 갱신
+	bm.onContextChange = () => {
+		cacheEls();
+		requestTick();
+	};
+
+	bm.onDestroy = () => {
+		window.removeEventListener('scroll', onScroll);
+		window.removeEventListener('resize', onResize);
+		document.body.style.overflow = '';
+	};
+
+	cacheEls();
+	update();
+
+</script>
