@@ -11,8 +11,15 @@
   식스샵 HTML 블록에 넣는 방법:
   아래 <style> ... </style> 부터 마지막 <script> ... </script> 까지
   전체를 복사해서 식스샵의 HTML/코드 블록에 붙여넣으면 됩니다.
-  모든 스타일은 .adeora-hero 스코프로 격리되어 있어
-  쇼핑몰의 다른 영역 스타일에 영향을 주지 않습니다.
+
+  배경에 대하여:
+  원본 스펙의 영상/이미지 CDN 주소가 삭제된 상태(403)라서,
+  배경은 외부 파일 없이 CSS/SVG만으로 그립니다(달빛 구름 + 별 + 산 실루엣).
+  외부 의존성이 없으므로 어떤 환경에서도 항상 표시됩니다.
+
+  직접 촬영/구매한 배경 영상을 쓰고 싶다면:
+  아래 HTML의 "배경 영상 슬롯" 주석을 해제하고 src에 mp4 주소를 넣으세요.
+  영상이 로드되면 CSS 하늘 위에 표시되고, 실패하면 CSS 하늘이 그대로 보입니다.
 -->
 
 <style>
@@ -70,7 +77,117 @@
     flex-shrink: 0;
   }
 
-  /* ============ Layer 1: Background video ============ */
+  /* ============ Layer 1: Sky (base gradient + moon glow) ============ */
+  .adeora-sky {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 78%, rgba(96, 150, 220, 0.5), transparent 65%),
+      radial-gradient(ellipse 45% 30% at 68% 24%, rgba(150, 190, 245, 0.3), transparent 70%),
+      linear-gradient(180deg, #02122C 0%, #071E3E 40%, #0C2C58 70%, #14406F 100%);
+    pointer-events: none;
+  }
+
+  /* Moon */
+  .adeora-sky::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 68%;
+    width: 220px;
+    height: 220px;
+    margin: -110px 0 0 -110px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #ffffff 0%, #f2f7ff 10%, rgba(210,228,255,0.55) 14%, rgba(170,200,250,0.18) 32%, transparent 62%);
+    pointer-events: none;
+  }
+
+  /* ============ Layer 2: Stars (tiled star field) ============ */
+  .adeora-stars {
+    position: absolute;
+    inset: 0;
+    height: 65%;
+    background-image:
+      radial-gradient(1px 1px at 25px 35px, rgba(255,255,255,0.9), transparent 100%),
+      radial-gradient(1px 1px at 160px 90px, rgba(255,255,255,0.7), transparent 100%),
+      radial-gradient(1.5px 1.5px at 310px 50px, rgba(255,255,255,0.8), transparent 100%),
+      radial-gradient(1px 1px at 420px 140px, rgba(255,255,255,0.6), transparent 100%),
+      radial-gradient(1px 1px at 90px 200px, rgba(255,255,255,0.75), transparent 100%),
+      radial-gradient(1.5px 1.5px at 500px 220px, rgba(255,255,255,0.65), transparent 100%),
+      radial-gradient(1px 1px at 250px 260px, rgba(255,255,255,0.55), transparent 100%);
+    background-size: 560px 320px;
+    background-repeat: repeat;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 90%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 90%);
+    pointer-events: none;
+  }
+
+  /* ============ Layer 3: Drifting clouds (blurred gradient blobs) ============ */
+  .adeora-clouds {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .adeora-clouds__layer {
+    position: absolute;
+    left: -25%;
+    width: 150%;
+    filter: blur(42px);
+    will-change: transform;
+  }
+
+  .adeora-clouds__layer--far {
+    top: 8%;
+    height: 46%;
+    opacity: 0.75;
+    background:
+      radial-gradient(ellipse 28% 42% at 18% 55%, rgba(140, 175, 225, 0.42), transparent 72%),
+      radial-gradient(ellipse 34% 48% at 52% 35%, rgba(175, 205, 245, 0.34), transparent 72%),
+      radial-gradient(ellipse 26% 40% at 82% 60%, rgba(120, 160, 215, 0.38), transparent 72%);
+    animation: adeora-drift-a 110s ease-in-out infinite alternate;
+  }
+
+  .adeora-clouds__layer--mid {
+    top: 30%;
+    height: 46%;
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 32% 46% at 30% 50%, rgba(105, 150, 210, 0.46), transparent 72%),
+      radial-gradient(ellipse 38% 52% at 66% 42%, rgba(150, 185, 235, 0.4), transparent 72%),
+      radial-gradient(ellipse 24% 38% at 92% 58%, rgba(95, 140, 200, 0.36), transparent 72%);
+    animation: adeora-drift-b 80s ease-in-out infinite alternate;
+  }
+
+  .adeora-clouds__layer--near {
+    bottom: 4%;
+    height: 52%;
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 40% 55% at 22% 62%, rgba(70, 120, 185, 0.5), transparent 72%),
+      radial-gradient(ellipse 46% 60% at 58% 55%, rgba(100, 150, 215, 0.44), transparent 72%),
+      radial-gradient(ellipse 34% 48% at 88% 65%, rgba(60, 110, 175, 0.46), transparent 72%);
+    animation: adeora-drift-c 60s ease-in-out infinite alternate;
+  }
+
+  @keyframes adeora-drift-a {
+    from { transform: translateX(-4%); }
+    to   { transform: translateX(4%); }
+  }
+
+  @keyframes adeora-drift-b {
+    from { transform: translateX(5%); }
+    to   { transform: translateX(-5%); }
+  }
+
+  @keyframes adeora-drift-c {
+    from { transform: translateX(-6%); }
+    to   { transform: translateX(6%); }
+  }
+
+  /* ============ Layer 4 (선택): 배경 영상 슬롯 ============ */
   .adeora-hero__video {
     position: absolute;
     inset: 0;
@@ -79,7 +196,7 @@
     object-fit: cover;
   }
 
-  /* ============ Layer 2: Video dimming overlay ============ */
+  /* ============ Layer 5: Dimming overlay ============ */
   .adeora-hero__dim {
     position: absolute;
     inset: 0;
@@ -87,21 +204,22 @@
     pointer-events: none;
   }
 
-  /* ============ Layer 3: Foreground image ============ */
-  .adeora-hero__foreground {
+  /* ============ Layer 6: Foreground mountains (inline SVG) ============ */
+  .adeora-hero__mountains {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 80vh;
-    background-image: url('https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_foreground_bg.png');
-    background-size: cover;
-    background-position: bottom;
-    background-repeat: no-repeat;
+    height: 42vh;
     pointer-events: none;
   }
 
-  /* ============ Layer 4: Bottom vignette ============ */
+  .adeora-hero__mountains svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ============ Layer 7: Bottom vignette ============ */
   .adeora-hero__vignette-bottom {
     position: absolute;
     bottom: 0;
@@ -117,7 +235,7 @@
     pointer-events: none;
   }
 
-  /* ============ Layer 5: Top vignette ============ */
+  /* ============ Layer 8: Top vignette ============ */
   .adeora-hero__vignette-top {
     position: absolute;
     inset: 0;
@@ -131,7 +249,7 @@
     pointer-events: none;
   }
 
-  /* ============ Layer 6: UI content ============ */
+  /* ============ Layer 9: UI content ============ */
   .adeora-hero__content {
     position: relative;
     z-index: 10;
@@ -380,7 +498,8 @@
     .adeora-main__subtitle,
     .adeora-main__headline,
     .adeora-main__desc,
-    .adeora-pill {
+    .adeora-pill,
+    .adeora-clouds__layer {
       animation: none;
     }
   }
@@ -455,30 +574,50 @@
 
 <section class="adeora-hero" id="adeoraHero">
 
-  <!-- Layer 1: Background video -->
+  <!-- Layer 1: Sky (gradient + moon glow) -->
+  <div class="adeora-sky" aria-hidden="true"></div>
+
+  <!-- Layer 2: Stars -->
+  <div class="adeora-stars" aria-hidden="true"></div>
+
+  <!-- Layer 3: Drifting clouds -->
+  <div class="adeora-clouds" aria-hidden="true">
+    <div class="adeora-clouds__layer adeora-clouds__layer--far"></div>
+    <div class="adeora-clouds__layer adeora-clouds__layer--mid"></div>
+    <div class="adeora-clouds__layer adeora-clouds__layer--near"></div>
+  </div>
+
+  <!-- Layer 4 (선택): 배경 영상 슬롯 — 직접 준비한 mp4가 있으면 주석을 풀고 src를 넣으세요.
   <video
     class="adeora-hero__video"
-    src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_cloud_animation_video.mp4"
-    autoplay
-    loop
-    muted
-    playsinline
+    src="여기에_영상_mp4_주소"
+    autoplay loop muted playsinline
     aria-hidden="true"
   ></video>
+  -->
 
-  <!-- Layer 2: Dimming overlay -->
+  <!-- Layer 5: Dimming overlay -->
   <div class="adeora-hero__dim" aria-hidden="true"></div>
 
-  <!-- Layer 3: Foreground image -->
-  <div class="adeora-hero__foreground" aria-hidden="true"></div>
+  <!-- Layer 6: Foreground mountains -->
+  <div class="adeora-hero__mountains" aria-hidden="true">
+    <svg viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <!-- Far ridge -->
+      <path fill="#0B2648" d="M0,310 L110,235 L205,285 L330,195 L455,275 L580,175 L705,265 L830,150 L960,255 L1085,195 L1210,270 L1320,225 L1440,285 L1440,480 L0,480 Z"/>
+      <!-- Mid ridge -->
+      <path fill="#071B38" d="M0,355 L140,275 L280,340 L430,245 L590,330 L750,255 L910,340 L1070,270 L1230,345 L1360,300 L1440,345 L1440,480 L0,480 Z"/>
+      <!-- Near ridge -->
+      <path fill="#03142E" d="M0,410 L180,330 L360,400 L560,320 L780,405 L990,340 L1200,410 L1340,370 L1440,405 L1440,480 L0,480 Z"/>
+    </svg>
+  </div>
 
-  <!-- Layer 4: Bottom vignette -->
+  <!-- Layer 7: Bottom vignette -->
   <div class="adeora-hero__vignette-bottom" aria-hidden="true"></div>
 
-  <!-- Layer 5: Top vignette -->
+  <!-- Layer 8: Top vignette -->
   <div class="adeora-hero__vignette-top" aria-hidden="true"></div>
 
-  <!-- Layer 6: UI content -->
+  <!-- Layer 9: UI content -->
   <div class="adeora-hero__content">
 
     <div class="adeora-nav-wrap">
