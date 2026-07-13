@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import LoadingScreen from './components/LoadingScreen'
 import Navbar from './components/Navbar'
-import Hero from './components/Hero'
+import AuroraHero from './components/AuroraHero'
 import SelectedWorks from './components/SelectedWorks'
 import Journal from './components/Journal'
 import Explorations from './components/Explorations'
@@ -18,7 +18,7 @@ function App() {
         <>
           <Navbar />
           <main>
-            <Hero />
+            <AuroraHero />
             <SelectedWorks />
             <Journal />
             <Explorations />
