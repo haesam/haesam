@@ -7,33 +7,36 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        display: ['Instrument Serif', 'serif'],
+        body: ['"Pretendard Variable"', 'Pretendard', 'sans-serif'],
+        display: ['"Noto Serif KR"', 'serif'],
       },
       colors: {
-        bg: "hsl(var(--bg))",
-        surface: "hsl(var(--surface))",
-        "text-primary": "hsl(var(--text))",
-        muted: "hsl(var(--muted))",
-        stroke: "hsl(var(--stroke))",
+        bg: "#FAF7F2",
+        surface: "#FFFFFF",
+        ink: "#2B2420",
+        muted: "#8A7F75",
+        accent: "#D96C47",
+        "accent-deep": "#C05A38",
+        success: "#6B8F71",
+        stroke: "#EAE3D9",
+      },
+      boxShadow: {
+        card: "0 4px 24px rgba(43, 36, 32, 0.06)",
+        lifted: "0 16px 48px rgba(43, 36, 32, 0.14)",
+        cta: "0 8px 24px rgba(217, 108, 71, 0.35)",
       },
       animation: {
-        'scroll-down': 'scroll-down 1.5s ease-in-out infinite',
-        'role-fade-in': 'role-fade-in 0.4s ease-out',
-        'gradient-shift': 'gradient-shift 6s ease infinite',
+        marquee: 'marquee 28s linear infinite',
+        float: 'float 6s ease-in-out infinite',
       },
       keyframes: {
-        'scroll-down': {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(200%)' },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         },
-        'role-fade-in': {
-          '0%': { opacity: '0', transform: 'translateY(8px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        'gradient-shift': {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-14px)' },
         },
       },
     },

@@ -1,34 +1,7 @@
-import { useState } from 'react'
-import LoadingScreen from './components/LoadingScreen'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import SelectedWorks from './components/SelectedWorks'
-import Journal from './components/Journal'
-import Explorations from './components/Explorations'
-import Stats from './components/Stats'
-import Contact from './components/Contact'
+import CoachLanding from './pages/CoachLanding'
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-
-  return (
-    <div className="min-h-screen bg-bg">
-      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
-      {!isLoading && (
-        <>
-          <Navbar />
-          <main>
-            <Hero />
-            <SelectedWorks />
-            <Journal />
-            <Explorations />
-            <Stats />
-            <Contact />
-          </main>
-        </>
-      )}
-    </div>
-  )
+  return <CoachLanding />
 }
 
 export default App
