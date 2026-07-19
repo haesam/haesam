@@ -55,7 +55,7 @@ export function Marquee() {
             {row.map((t, i) => (
               <span
                 key={`${half}-${i}`}
-                className="mx-6 flex items-center gap-6 font-coach-serif text-lg tracking-wide text-[#E4C97E]/80"
+                className="mx-6 flex items-center gap-6 font-coach-sans text-lg font-semibold tracking-wide text-[#E4C97E]/80"
               >
                 {t} <span className="text-[#C96F4A]">✦</span>
               </span>
@@ -79,7 +79,7 @@ function PainSection() {
   return (
     <Section className="bg-[#F6F1E7] text-[#14352A]">
       <div className="mx-auto max-w-4xl text-center">
-        <motion.h2 variants={fadeUp} className="font-coach-serif text-3xl font-bold leading-snug sm:text-4xl">
+        <motion.h2 variants={fadeUp} className="font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em] sm:text-4xl">
           혹시, 이런 생각을
           <br className="sm:hidden" /> 하고 있진 않나요?
         </motion.h2>
@@ -92,11 +92,11 @@ function PainSection() {
               className="rounded-2xl bg-white p-6 text-left shadow-sm ring-1 ring-[#14352A]/8"
             >
               <span className="text-2xl">{p.emoji}</span>
-              <p className="mt-3 text-lg leading-relaxed">“{p.text}”</p>
+              <p className="mt-3 text-lg leading-[1.65]">“{p.text}”</p>
             </motion.div>
           ))}
         </div>
-        <motion.p variants={fadeUp} className="mx-auto mt-12 max-w-xl text-lg leading-relaxed text-[#14352A]/70">
+        <motion.p variants={fadeUp} className="mx-auto mt-12 max-w-xl text-lg leading-[1.7] text-[#14352A]/70">
           의지의 문제가 아닙니다.{' '}
           <span className="font-bold text-[#C96F4A]">방향이 정리되지 않았기 때문</span>입니다.
         </motion.p>
@@ -120,7 +120,7 @@ function InsideSection() {
         <motion.p variants={fadeUp} className="text-center text-sm font-bold uppercase tracking-[0.25em] text-[#C96F4A]">
           What's Inside
         </motion.p>
-        <motion.h2 variants={fadeUp} className="mt-3 text-center font-coach-serif text-3xl font-bold sm:text-4xl">
+        <motion.h2 variants={fadeUp} className="mt-3 text-center font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em] sm:text-4xl">
           워크북에 담긴 것들
         </motion.h2>
         <div className="mt-12 space-y-4">
@@ -130,7 +130,7 @@ function InsideSection() {
               variants={fadeUp}
               className="flex items-start gap-5 rounded-2xl bg-[#F6F1E7] p-6 ring-1 ring-[#14352A]/5 sm:items-center"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#14352A] font-coach-serif text-lg font-bold text-[#E4C97E]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#14352A] font-coach-sans text-lg font-bold text-[#E4C97E]">
                 {i + 1}
               </span>
               <div>
@@ -153,17 +153,17 @@ function CoachSection() {
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-10 sm:flex-row sm:gap-14">
         <motion.div variants={fadeUp} className="shrink-0">
           <div className="flex h-52 w-52 items-center justify-center rounded-full bg-gradient-to-br from-[#1E5741] to-[#0B2018] shadow-xl ring-4 ring-white">
-            <span className="font-coach-serif text-6xl font-bold text-[#E4C97E]">해샘</span>
+            <span className="font-coach-sans text-5xl font-extrabold tracking-[-0.02em] text-[#E4C97E]">해샘</span>
           </div>
         </motion.div>
         <div className="text-center sm:text-left">
           <motion.p variants={fadeUp} className="text-sm font-bold uppercase tracking-[0.25em] text-[#C96F4A]">
             About Coach
           </motion.p>
-          <motion.h2 variants={fadeUp} className="mt-3 font-coach-serif text-3xl font-bold">
+          <motion.h2 variants={fadeUp} className="mt-3 font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em]">
             저도 그 안개 속에 있었습니다
           </motion.h2>
-          <motion.p variants={fadeUp} className="mt-5 leading-relaxed text-[#14352A]/70">
+          <motion.p variants={fadeUp} className="mt-5 leading-[1.75] text-[#14352A]/70 [word-break:keep-all]">
             10년 차 직장인이던 어느 날, "이대로 10년 더?"라는 질문에 아무 대답도 할 수 없었습니다. 그때 저를
             꺼내준 것이 바로 이 질문들이었습니다. 지금은 같은 안개 속에 있는 분들이 자신만의 방향을 찾도록
             돕고 있습니다.
@@ -201,7 +201,7 @@ function ReviewSection() {
   return (
     <Section className="bg-white text-[#14352A]">
       <div className="mx-auto max-w-4xl">
-        <motion.h2 variants={fadeUp} className="text-center font-coach-serif text-3xl font-bold sm:text-4xl">
+        <motion.h2 variants={fadeUp} className="text-center font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em] sm:text-4xl">
           먼저 받아간 분들의 이야기
         </motion.h2>
         <div className="mt-12 grid gap-5 sm:grid-cols-3">
@@ -214,7 +214,7 @@ function ReviewSection() {
                 i === 1 ? 'bg-[#14352A] text-[#F6F1E7] ring-[#14352A]' : 'bg-[#F6F1E7] ring-[#14352A]/8'
               }`}
             >
-              <blockquote className="leading-relaxed">
+              <blockquote className="leading-[1.7] [word-break:keep-all]">
                 <span className={i === 1 ? 'text-[#E4C97E]' : 'text-[#C96F4A]'}>“</span>
                 {r.text}
                 <span className={i === 1 ? 'text-[#E4C97E]' : 'text-[#C96F4A]'}>”</span>
@@ -257,7 +257,7 @@ function HowSection() {
   return (
     <Section className="bg-[#F6F1E7] text-[#14352A]">
       <div ref={root} className="mx-auto max-w-4xl text-center">
-        <motion.h2 variants={fadeUp} className="font-coach-serif text-3xl font-bold sm:text-4xl">
+        <motion.h2 variants={fadeUp} className="font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em] sm:text-4xl">
           받는 방법은 딱 3스텝
         </motion.h2>
         <div className="relative mt-14">
@@ -299,7 +299,7 @@ function FinalCta() {
         <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[#C96F4A] opacity-20 blur-[110px]" />
       </div>
       <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
-        <motion.h2 variants={fadeUp} className="font-coach-serif text-3xl font-bold leading-snug sm:text-4xl">
+        <motion.h2 variants={fadeUp} className="font-coach-sans text-3xl font-extrabold leading-[1.35] tracking-[-0.02em] sm:text-4xl">
           당신의 다음 챕터,
           <br />
           오늘 30분이면 시작됩니다
@@ -319,7 +319,7 @@ function FinalCta() {
 function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#081812] px-5 py-10 text-center text-sm text-[#F6F1E7]/40">
-      <p className="font-coach-serif text-lg text-[#F6F1E7]/70">코치 해샘</p>
+      <p className="font-coach-sans text-lg font-semibold text-[#F6F1E7]/70">코치 해샘</p>
       <p className="mt-3">대표: 해샘 · 문의: haesam92@gmail.com</p>
       <p className="mt-1">
         <a href="#" className="underline underline-offset-2 hover:text-[#E4C97E]">

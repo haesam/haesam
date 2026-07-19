@@ -178,7 +178,7 @@ export default function CoachHero() {
         </p>
 
         <h1
-          className="font-coach-serif text-[2.1rem] font-bold leading-[1.25] [word-break:keep-all] sm:text-5xl lg:text-[3.2rem]"
+          className="font-coach-sans text-[2.1rem] font-extrabold leading-[1.3] tracking-[-0.02em] [word-break:keep-all] sm:text-5xl lg:text-[3.2rem]"
           style={{ perspective: 600 }}
         >
           <span className="block overflow-hidden pb-1">
@@ -192,7 +192,7 @@ export default function CoachHero() {
           </span>
         </h1>
 
-        <p className="hero-sub mt-6 max-w-md text-base leading-relaxed text-[#F6F1E7]/70 [word-break:keep-all] sm:text-lg">
+        <p className="hero-sub mt-6 max-w-md text-base leading-[1.7] text-[#F6F1E7]/70 [word-break:keep-all] sm:text-lg">
           현직 라이프 코치가 실제 세션에서 쓰는 셀프 코칭 워크북.
           <br className="hidden sm:block" /> 30분이면 흩어진 고민이 방향으로 정리됩니다.
         </p>
@@ -231,7 +231,7 @@ export default function CoachHero() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#C96F4A]">
               Self-Coaching Workbook
             </p>
-            <h3 className="font-coach-serif mt-4 text-2xl font-bold leading-snug text-[#14352A]">
+            <h3 className="font-coach-sans mt-4 text-2xl font-extrabold leading-[1.35] tracking-[-0.01em] text-[#14352A]">
               인생 방향
               <br />
               점검 워크북

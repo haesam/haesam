@@ -74,7 +74,7 @@ export default function EmailForm({ variant = 'dark', ctaLabel = '무료 워크�
             <div className="mx-auto h-20 w-20">
               <Lottie animationData={checkAnim} loop={false} />
             </div>
-            <p className="font-coach-serif text-xl font-semibold">신청 완료! 메일함을 확인하세요</p>
+            <p className="font-coach-sans text-xl font-bold tracking-[-0.01em]">신청 완료! 메일함을 확인하세요</p>
             <p className={`mt-2 text-sm ${isDark ? 'text-[#F6F1E7]/70' : 'text-[#14352A]/60'}`}>
               1분 안에 워크북이 도착합니다 (프로모션 탭도 확인해주세요)
             </p>
