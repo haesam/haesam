@@ -150,7 +150,7 @@ export default function LeadForm({ id, onPrivacyClick, compact = false }: LeadFo
             </AnimatePresence>
 
             {!compact && (
-              <p className="mt-3 text-[12px] text-muted/80">스팸 없음 · 언제든 구독 해지 가능</p>
+              <p className="form-note mt-3 text-[12px] text-muted/80">스팸 없음 · 언제든 구독 해지 가능</p>
             )}
           </motion.form>
         )}

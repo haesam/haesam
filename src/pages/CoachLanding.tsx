@@ -29,7 +29,7 @@ export default function CoachLanding() {
       />
 
       <main>
-        <Hero />
+        <Hero onPrivacyClick={openPrivacy} />
         <Roadmap />
         <AboutCoach />
         <FinalCta onPrivacyClick={openPrivacy} />
