@@ -9,6 +9,8 @@ export default {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         display: ['Instrument Serif', 'serif'],
+        'coach-serif': ['"Noto Serif KR"', 'serif'],
+        'coach-sans': ['Pretendard', 'Pretendard Variable', '-apple-system', 'sans-serif'],
       },
       colors: {
         bg: "hsl(var(--bg))",
