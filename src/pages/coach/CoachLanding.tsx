@@ -30,7 +30,7 @@ function MobileCta() {
 
 export default function CoachLanding() {
   useEffect(() => {
-    document.title = '인생 방향 점검 워크북 — 무료 나눔 | 코치 해샘'
+    document.title = '인생 방향 점검 워크북 — 무료 나눔 | 코치 유진'
     document.documentElement.style.scrollBehavior = 'smooth'
     return () => {
       document.documentElement.style.scrollBehavior = ''

@@ -91,30 +91,24 @@ export default function EmailForm({ variant = 'dark', ctaLabel = '무료 워크�
             className="w-full"
             noValidate
           >
-            <div
-              className={`flex flex-col gap-3 rounded-full p-2 sm:flex-row sm:items-center sm:gap-0 ${
-                isDark
-                  ? 'bg-white/10 ring-1 ring-white/20 backdrop-blur-md'
-                  : 'bg-white ring-1 ring-[#14352A]/15 shadow-lg shadow-[#14352A]/5'
-              }`}
-            >
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="이메일 주소를 입력하세요"
-                className={`min-w-0 flex-1 bg-transparent px-5 py-3 text-base outline-none ${
+                className={`min-w-0 flex-1 rounded-lg border px-4 py-3.5 text-base outline-none transition-colors ${
                   isDark
-                    ? 'text-[#F6F1E7] placeholder:text-[#F6F1E7]/45'
-                    : 'text-[#14352A] placeholder:text-[#14352A]/40'
+                    ? 'border-white/25 bg-white/10 text-[#F6F1E7] placeholder:text-[#F6F1E7]/45 focus:border-[#E4C97E]'
+                    : 'border-[#14352A]/20 bg-white text-[#14352A] placeholder:text-[#14352A]/40 focus:border-[#C96F4A]'
                 }`}
               />
-              <div onMouseMove={onBtnMove} onMouseLeave={onBtnLeave} className="shrink-0 p-1">
+              <div onMouseMove={onBtnMove} onMouseLeave={onBtnLeave} className="shrink-0">
                 <motion.button
                   ref={btnRef}
                   type="submit"
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full whitespace-nowrap rounded-full bg-[#C96F4A] px-7 py-3.5 text-base font-bold text-white shadow-lg shadow-[#C96F4A]/30 transition-colors hover:bg-[#B85F3B] sm:w-auto"
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full whitespace-nowrap rounded-lg bg-[#C96F4A] px-7 py-3.5 text-base font-bold text-white shadow-lg shadow-[#C96F4A]/30 transition-colors hover:bg-[#B85F3B] sm:w-auto"
                 >
                   {ctaLabel}
                 </motion.button>

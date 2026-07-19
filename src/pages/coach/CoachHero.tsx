@@ -322,7 +322,7 @@ export default function CoachHero() {
               </h3>
               <p className="mt-3 text-sm text-[#14352A]/60">15 Questions · 30 Minutes</p>
               <div className="absolute bottom-6 left-6 right-6 border-t border-[#14352A]/15 pt-3">
-                <p className="text-xs text-[#14352A]/50">코치 해샘 · Free Edition</p>
+                <p className="text-xs text-[#14352A]/50">코치 유진 · Free Edition</p>
               </div>
             </div>
 

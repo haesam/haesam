@@ -153,7 +153,7 @@ function CoachSection() {
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-10 sm:flex-row sm:gap-14">
         <motion.div variants={fadeUp} className="shrink-0">
           <div className="flex h-52 w-52 items-center justify-center rounded-full bg-gradient-to-br from-[#1E5741] to-[#0B2018] shadow-xl ring-4 ring-white">
-            <span className="font-coach-sans text-5xl font-extrabold tracking-[-0.02em] text-[#E4C97E]">해샘</span>
+            <span className="font-coach-sans text-5xl font-extrabold tracking-[-0.02em] text-[#E4C97E]">유진</span>
           </div>
         </motion.div>
         <div className="text-center sm:text-left">
@@ -319,14 +319,14 @@ function FinalCta() {
 function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#081812] px-5 py-10 text-center text-sm text-[#F6F1E7]/40">
-      <p className="font-coach-sans text-lg font-semibold text-[#F6F1E7]/70">코치 해샘</p>
-      <p className="mt-3">대표: 해샘 · 문의: haesam92@gmail.com</p>
+      <p className="font-coach-sans text-lg font-semibold text-[#F6F1E7]/70">코치 유진</p>
+      <p className="mt-3">주)라이프가이드 · 대표: 유진 · 문의: youjin@gmail.com</p>
       <p className="mt-1">
         <a href="#" className="underline underline-offset-2 hover:text-[#E4C97E]">
           개인정보처리방침
         </a>
       </p>
-      <p className="mt-4">© 2026 Coach Haesam. All rights reserved.</p>
+      <p className="mt-4">© 2026 주)라이프가이드. All rights reserved.</p>
     </footer>
   )
 }
