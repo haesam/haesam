@@ -5,4 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/haesam/',
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      // pc.html: 모바일에서 데스크톱 레이아웃을 확인하는 미리보기 페이지
+      input: {
+        main: 'index.html',
+        pc: 'pc.html',
+      },
+    },
+  },
 })
