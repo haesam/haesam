@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import EmailForm from './EmailForm'
+import HeroBackground from './HeroBackground'
 
 const VIDEO_URL = 'https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_cloud_animation_video.mp4'
 const FOREGROUND_URL = 'https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/hero_foreground_bg.png'
@@ -17,25 +18,28 @@ export default function Hero() {
 
   return (
     <header className="relative min-h-screen w-full overflow-hidden bg-[#050B14] text-cream">
-      {/* 1. 배경 영상 */}
+      {/* 1a. 캔버스 배경 (외부 에셋 차단 환경에서도 항상 보이는 기본 배경) */}
+      <HeroBackground />
+      {/* 1b. 배경 영상 — 로드에 성공한 환경에서만 캔버스 위에 표시 */}
       <video
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 [&.loaded]:opacity-100"
         src={VIDEO_URL}
         autoPlay
         loop
         muted
         playsInline
         aria-hidden="true"
+        onPlaying={(e) => e.currentTarget.classList.add('loaded')}
       />
-      {/* 2. 영상 디밍 오버레이 */}
+      {/* 2. 디밍 오버레이 */}
       <div className="pointer-events-none absolute inset-0 bg-black/20" />
       {/* 3. 포그라운드 이미지 */}
       <div
         className="pointer-events-none absolute bottom-0 left-0 right-0 h-[80vh] bg-cover bg-bottom"
         style={{ backgroundImage: `url(${FOREGROUND_URL})` }}
       />
-      {/* 4. 하단 비네트 */}
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[60vh] bg-gradient-to-t from-[#02122c] via-[#02122c]/80 to-transparent" />
+      {/* 4. 하단 비네트 — 캔버스 배경(구름·언덕)이 비치도록 강도를 낮춤 */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[40vh] bg-gradient-to-t from-[#02122c]/70 via-[#02122c]/40 to-transparent" />
       {/* 5. 상단 비네트 */}
       <div
         className="pointer-events-none absolute inset-0"
