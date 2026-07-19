@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import EmailForm from './EmailForm'
 import HeroBackground from './HeroBackground'
 
@@ -7,6 +8,19 @@ const FOREGROUND_URL = 'https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsit
 
 export default function Hero() {
   const reduced = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+
+  // 패럴렉스: 히어로가 화면 밖으로 스크롤되는 동안(0→1)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+  // 배경은 스크롤의 일부 속도로만 이동 (느리게 = 멀리 있는 느낌)
+  const bgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%'])
+  // 텍스트는 스크롤보다 살짝 빠르게 올라가며 서서히 사라짐 (가깝게 느껴짐)
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -140])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+
   const enter = (y: number, duration: number, delay = 0) =>
     reduced
       ? {}
@@ -17,27 +31,35 @@ export default function Hero() {
         }
 
   return (
-    <header className="relative min-h-screen w-full overflow-hidden bg-[#050B14] text-cream">
-      {/* 1a. 캔버스 배경 (외부 에셋 차단 환경에서도 항상 보이는 기본 배경) */}
-      <HeroBackground />
-      {/* 1b. 배경 영상 — 로드에 성공한 환경에서만 캔버스 위에 표시 */}
-      <video
-        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 [&.loaded]:opacity-100"
-        src={VIDEO_URL}
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-        onPlaying={(e) => e.currentTarget.classList.add('loaded')}
-      />
-      {/* 2. 디밍 오버레이 */}
-      <div className="pointer-events-none absolute inset-0 bg-black/20" />
-      {/* 3. 포그라운드 이미지 */}
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 h-[80vh] bg-cover bg-bottom"
-        style={{ backgroundImage: `url(${FOREGROUND_URL})` }}
-      />
+    <header ref={sectionRef} className="relative min-h-screen w-full overflow-hidden bg-[#050B14] text-cream">
+      {/* 배경 레이어 묶음 — 상하로 15% 여유를 두고 스크롤보다 느리게 이동 (패럴렉스) */}
+      <motion.div
+        style={reduced ? undefined : { y: bgY }}
+        className="absolute inset-x-0 -top-[15%] -bottom-[15%]"
+      >
+        {/* 1a. 캔버스 배경 (외부 에셋 차단 환경에서도 항상 보이는 기본 배경) */}
+        <HeroBackground />
+        {/* 1b. 배경 영상 — 로드에 성공한 환경에서만 캔버스 위에 표시 */}
+        <video
+          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-700 [&.loaded]:opacity-100"
+          src={VIDEO_URL}
+          autoPlay
+          loop
+          muted
+          playsInline
+          aria-hidden="true"
+          onPlaying={(e) => e.currentTarget.classList.add('loaded')}
+        />
+        {/* 2. 디밍 오버레이 */}
+        <div className="pointer-events-none absolute inset-0 bg-black/20" />
+        {/* 3. 포그라운드 이미지 */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-[80%] bg-cover bg-bottom"
+          style={{ backgroundImage: `url(${FOREGROUND_URL})` }}
+        />
+      </motion.div>
+
+      {/* 비네트는 섹션에 고정 (텍스트 가독성 유지) */}
       {/* 4. 하단 비네트 — 캔버스 배경(구름·언덕)이 비치도록 강도를 낮춤 */}
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-[40vh] bg-gradient-to-t from-[#02122c]/70 via-[#02122c]/40 to-transparent" />
       {/* 5. 상단 비네트 */}
@@ -49,9 +71,12 @@ export default function Hero() {
         }}
       />
 
-      {/* 6. UI 콘텐츠 */}
+      {/* 6. UI 콘텐츠 — 스크롤 시 배경보다 빠르게 위로 이동 */}
       {/* 모바일: 위는 하늘, 아래는 구름·언덕이 드러나도록 상하 여백 확보 */}
-      <div className="relative z-10 mx-auto grid min-h-screen max-w-page items-center gap-12 px-5 pb-[38vh] pt-24 md:grid-cols-[1.2fr_1fr] md:py-24">
+      <motion.div
+        style={reduced ? undefined : { y: contentY, opacity: contentOpacity }}
+        className="relative z-10 mx-auto grid min-h-screen max-w-page items-center gap-12 px-5 pb-[38vh] pt-24 md:grid-cols-[1.2fr_1fr] md:py-24"
+      >
         <div>
           <motion.p
             {...enter(20, 0.6)}
@@ -99,7 +124,7 @@ export default function Hero() {
             </p>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </header>
   )
 }
