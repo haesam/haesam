@@ -55,7 +55,7 @@ export default function AboutCoach() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-surface py-20 lg:py-32">
+    <section ref={sectionRef} id="coach" className="relative overflow-hidden bg-surface py-20 lg:py-32">
       <div className="mx-auto grid max-w-[1040px] items-center gap-12 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div data-coach-photo className="relative mx-auto w-full max-w-[360px]">
           <div className="overflow-hidden rounded-3xl shadow-lifted">

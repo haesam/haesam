@@ -62,7 +62,7 @@ export default function Roadmap() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative py-20 lg:py-32">
+    <section ref={sectionRef} id="roadmap" className="relative py-20 lg:py-32">
       <div className="mx-auto max-w-[1040px] px-6">
         {/* 문제 공감 */}
         <div data-reveal className="mx-auto max-w-2xl text-center">

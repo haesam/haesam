@@ -111,7 +111,7 @@ export default function FinalCta({ onPrivacyClick }: FinalCtaProps) {
             지금 이메일을 남기고, 오늘을 Day 0으로 만드세요.
           </p>
           <div className="mx-auto mt-9 flex max-w-xl justify-center [&_input[type='email']]:border-transparent [&_label]:text-bg/50 [&_label_button]:hover:text-bg">
-            <LeadForm compact onPrivacyClick={onPrivacyClick} />
+            <LeadForm id="lead-form" compact onPrivacyClick={onPrivacyClick} />
           </div>
         </div>
       </div>

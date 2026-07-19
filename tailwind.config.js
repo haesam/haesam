@@ -9,6 +9,8 @@ export default {
       fontFamily: {
         body: ['"Pretendard Variable"', 'Pretendard', 'sans-serif'],
         display: ['"Noto Serif KR"', 'serif'],
+        hero: ['Inter', 'sans-serif'],
+        'hero-serif': ['"Playfair Display"', 'serif'],
       },
       colors: {
         bg: "#FAF7F2",
@@ -19,6 +21,8 @@ export default {
         "accent-deep": "#C05A38",
         success: "#6B8F71",
         stroke: "#EAE3D9",
+        "brand-gold": "#e2b05c",
+        "brand-teal": "#3ba4ab",
       },
       boxShadow: {
         card: "0 4px 24px rgba(43, 36, 32, 0.06)",
