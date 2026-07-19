@@ -126,6 +126,77 @@ function AmbientCanvas() {
       c.fillStyle = mist
       c.fillRect(0, 0, w, h)
 
+      // 명상하는 사람 실루엣 (뒷모습, 달빛 후광)
+      const drawPerson = (px: number, py: number, u: number, glow = 1) => {
+        const halo = c.createRadialGradient(px, py - u * 0.8, 0, px, py - u * 0.8, u * 2.4)
+        halo.addColorStop(0, `rgba(150, 214, 190, ${0.14 * glow})`)
+        halo.addColorStop(0.5, `rgba(127, 212, 193, ${0.05 * glow})`)
+        halo.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        c.fillStyle = halo
+        c.beginPath()
+        c.arc(px, py - u * 0.8, u * 2.4, 0, Math.PI * 2)
+        c.fill()
+
+        c.save()
+        const ink = 'rgba(4, 12, 10, 0.96)'
+        c.fillStyle = ink
+        c.strokeStyle = ink
+        c.shadowColor = ink
+        c.shadowBlur = u * 0.07
+
+        // 가부좌 다리
+        c.beginPath()
+        c.ellipse(px, py - u * 0.16, u * 1.02, u * 0.3, 0, 0, Math.PI * 2)
+        c.fill()
+        // 몸통 (어깨로 갈수록 좁아지는 곡선)
+        c.beginPath()
+        c.moveTo(px - u * 0.6, py - u * 0.22)
+        c.bezierCurveTo(px - u * 0.57, py - u * 0.82, px - u * 0.5, py - u * 1.04, px - u * 0.38, py - u * 1.12)
+        c.lineTo(px + u * 0.38, py - u * 1.12)
+        c.bezierCurveTo(px + u * 0.5, py - u * 1.04, px + u * 0.57, py - u * 0.82, px + u * 0.6, py - u * 0.22)
+        c.closePath()
+        c.fill()
+        // 목·머리 (곱슬 느낌의 작은 혹)
+        c.beginPath()
+        c.ellipse(px, py - u * 1.14, u * 0.19, u * 0.15, 0, 0, Math.PI * 2)
+        c.fill()
+        c.beginPath()
+        c.arc(px, py - u * 1.4, u * 0.27, 0, Math.PI * 2)
+        c.fill()
+        for (const [bx, by, br] of [
+          [-0.18, -1.58, 0.09], [0, -1.66, 0.1], [0.18, -1.58, 0.09],
+          [-0.26, -1.44, 0.08], [0.26, -1.44, 0.08],
+        ] as const) {
+          c.beginPath()
+          c.arc(px + u * bx, py + u * by, u * br, 0, Math.PI * 2)
+          c.fill()
+        }
+        // 팔: 어깨에서 무릎으로
+        c.lineWidth = u * 0.17
+        c.lineCap = 'round'
+        c.beginPath()
+        c.moveTo(px - u * 0.44, py - u * 0.98)
+        c.quadraticCurveTo(px - u * 0.74, py - u * 0.62, px - u * 0.86, py - u * 0.3)
+        c.stroke()
+        c.beginPath()
+        c.moveTo(px + u * 0.44, py - u * 0.98)
+        c.quadraticCurveTo(px + u * 0.74, py - u * 0.62, px + u * 0.86, py - u * 0.3)
+        c.stroke()
+        c.restore()
+
+        // 바닥 그림자
+        const ground = c.createRadialGradient(px, py, 0, px, py, u * 1.5)
+        ground.addColorStop(0, 'rgba(3, 9, 7, 0.5)')
+        ground.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        c.fillStyle = ground
+        c.beginPath()
+        c.ellipse(px, py + u * 0.05, u * 1.5, u * 0.3, 0, 0, Math.PI * 2)
+        c.fill()
+      }
+      // 모바일에서는 하단 중앙(폼 아래 여백)에 후광을 키워서, 데스크톱에서는 우측에 배치
+      if (w < 640) drawPerson(w * 0.5, h * 0.99, h * 0.115, 2.2)
+      else drawPerson(w * 0.68, h * 0.95, h * 0.2)
+
       return off
     }
 
