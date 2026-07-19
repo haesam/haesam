@@ -88,7 +88,7 @@ export default function LeadForm({ id, onPrivacyClick, compact = false }: LeadFo
                 }}
                 placeholder="이메일 주소를 입력하세요"
                 aria-label="이메일 주소"
-                className="h-14 flex-1 rounded-xl border border-stroke bg-surface px-5 text-[15px] outline-none transition-colors placeholder:text-muted/70 focus:border-accent"
+                className="h-14 w-full shrink-0 rounded-xl border border-stroke bg-surface px-5 text-[15px] outline-none transition-colors placeholder:text-muted/70 focus:border-accent sm:w-auto sm:flex-1"
               />
               {/* honeypot — 봇 차단용, 사용자에게 보이지 않음 */}
               <input
