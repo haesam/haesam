@@ -50,7 +50,8 @@ export default function Hero() {
       />
 
       {/* 6. UI 콘텐츠 */}
-      <div className="relative z-10 mx-auto grid min-h-screen max-w-page items-center gap-12 px-5 py-16 md:grid-cols-[1.2fr_1fr] md:py-24">
+      {/* 모바일: 위는 하늘, 아래는 구름·언덕이 드러나도록 상하 여백 확보 */}
+      <div className="relative z-10 mx-auto grid min-h-screen max-w-page items-center gap-12 px-5 pb-[38vh] pt-24 md:grid-cols-[1.2fr_1fr] md:py-24">
         <div>
           <motion.p
             {...enter(20, 0.6)}
