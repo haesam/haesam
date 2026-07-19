@@ -26,7 +26,7 @@ const MARQUEE_ITEMS = [
   '팔로워 0명부터',
 ]
 
-/** 비디오를 불러오지 못하는 환경을 위한 앰비언트 모션 폴백.
+/** 비디오를 불러오지 못하는 환경을 위한 "밤 숲 + 반딧불이" 폴백 장면.
  *  비디오가 정상 재생되면 위에 덮여 보이지 않는다. */
 function AmbientCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -37,17 +37,119 @@ function AmbientCanvas() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const BLOBS = [
-      { color: '59, 164, 171', r: 0.52, cx: 0.75, cy: 0.35, ax: 0.16, ay: 0.1, sp: 0.00006, ph: 0 },
-      { color: '226, 176, 92', r: 0.4, cx: 0.3, cy: 0.75, ax: 0.12, ay: 0.14, sp: 0.00005, ph: 2.1 },
-      { color: '30, 64, 96', r: 0.6, cx: 0.5, cy: 0.2, ax: 0.2, ay: 0.08, sp: 0.00004, ph: 4.2 },
-      { color: '59, 164, 171', r: 0.35, cx: 0.15, cy: 0.3, ax: 0.1, ay: 0.16, sp: 0.00007, ph: 5.4 },
-    ]
-
     let raf = 0
+    let stat: HTMLCanvasElement | null = null
+
+    // 정적 레이어(하늘·달빛·숲 실루엣)는 오프스크린에 한 번만 그린다
+    const buildStatic = (w: number, h: number) => {
+      const off = document.createElement('canvas')
+      off.width = w
+      off.height = h
+      const c = off.getContext('2d')!
+
+      // 하늘: 딥 슬레이트 → 틸그린 숲
+      const sky = c.createLinearGradient(0, 0, 0, h)
+      sky.addColorStop(0, '#0c1a26')
+      sky.addColorStop(0.45, '#122b30')
+      sky.addColorStop(0.8, '#173a35')
+      sky.addColorStop(1, '#0e2622')
+      c.fillStyle = sky
+      c.fillRect(0, 0, w, h)
+
+      // 달빛 글로우 (우상단)
+      const moon = c.createRadialGradient(w * 0.62, h * 0.22, 0, w * 0.62, h * 0.22, Math.max(w, h) * 0.55)
+      moon.addColorStop(0, 'rgba(168, 224, 205, 0.20)')
+      moon.addColorStop(0.4, 'rgba(127, 212, 193, 0.08)')
+      moon.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      c.fillStyle = moon
+      c.fillRect(0, 0, w, h)
+
+      // 은은한 빛줄기
+      c.save()
+      c.translate(w * 0.62, 0)
+      c.rotate(0.18)
+      const beam = c.createLinearGradient(0, 0, 0, h)
+      beam.addColorStop(0, 'rgba(170, 220, 200, 0.05)')
+      beam.addColorStop(1, 'rgba(0, 0, 0, 0)')
+      c.fillStyle = beam
+      c.fillRect(-w * 0.06, 0, w * 0.12, h)
+      c.restore()
+
+      // 아웃포커스 캐노피 — blur 필터는 fill마다 비용이 커서 프레임을 멈추므로,
+      // 저해상도 캔버스에 그린 뒤 확대해 자연스러운 블러를 얻는다
+      const canopyLayer = (
+        scale: number,
+        clusters: Array<{ cx: number; cy: number; spread: number; count: number; base: number; color: string }>,
+      ) => {
+        const s = document.createElement('canvas')
+        s.width = Math.max(2, Math.round(w * scale))
+        s.height = Math.max(2, Math.round(h * scale))
+        const sc = s.getContext('2d')!
+        sc.scale(scale, scale)
+        for (const cl of clusters) {
+          sc.fillStyle = cl.color
+          for (let i = 0; i < cl.count; i++) {
+            const a = Math.random() * Math.PI * 2
+            const d = Math.pow(Math.random(), 0.6) * cl.spread
+            const x = cl.cx + Math.cos(a) * d * 1.3
+            const y = cl.cy + Math.sin(a) * d
+            const r = cl.base * (0.6 + Math.random() * 0.9)
+            sc.beginPath()
+            sc.ellipse(x, y, r * 1.4, r, a, 0, Math.PI * 2)
+            sc.fill()
+          }
+        }
+        c.imageSmoothingEnabled = true
+        c.imageSmoothingQuality = 'high'
+        c.drawImage(s, 0, 0, w, h)
+      }
+      // 깊은 배경 캐노피 (강한 블러) → 근경 실루엣 → 달빛 받은 잎 하이라이트
+      canopyLayer(0.03, [
+        { cx: w * 1.05, cy: h * 0.02, spread: w * 0.3, count: 90, base: w * 0.05, color: 'rgba(10, 34, 26, 0.55)' },
+        { cx: -w * 0.05, cy: -h * 0.05, spread: w * 0.26, count: 70, base: w * 0.045, color: 'rgba(10, 34, 26, 0.5)' },
+      ])
+      canopyLayer(0.08, [
+        { cx: w * 1.04, cy: h * 0.04, spread: w * 0.24, count: 110, base: w * 0.032, color: 'rgba(6, 18, 14, 0.8)' },
+        { cx: w * 0.92, cy: h * 0.42, spread: w * 0.12, count: 60, base: w * 0.026, color: 'rgba(6, 18, 14, 0.7)' },
+        { cx: -w * 0.03, cy: -h * 0.06, spread: w * 0.2, count: 80, base: w * 0.03, color: 'rgba(6, 18, 14, 0.75)' },
+        { cx: w * 0.38, cy: -h * 0.1, spread: w * 0.17, count: 50, base: w * 0.026, color: 'rgba(6, 18, 14, 0.6)' },
+      ])
+      canopyLayer(0.1, [
+        { cx: w * 0.86, cy: h * 0.16, spread: w * 0.1, count: 34, base: w * 0.018, color: 'rgba(58, 118, 86, 0.22)' },
+        { cx: w * 0.72, cy: h * 0.06, spread: w * 0.08, count: 26, base: w * 0.015, color: 'rgba(58, 118, 86, 0.18)' },
+      ])
+
+      // 바닥 안개
+      const mist = c.createLinearGradient(0, h * 0.78, 0, h)
+      mist.addColorStop(0, 'rgba(0, 0, 0, 0)')
+      mist.addColorStop(1, 'rgba(10, 26, 22, 0.85)')
+      c.fillStyle = mist
+      c.fillRect(0, 0, w, h)
+
+      return off
+    }
+
+    interface Firefly {
+      x: number; y: number; r: number; ph: number; sp: number; dx: number; dy: number
+    }
+    let flies: Firefly[] = []
+    const seed = () => {
+      flies = Array.from({ length: 42 }, () => ({
+        x: Math.random(),
+        y: 0.12 + Math.random() * 0.78,
+        r: 1 + Math.random() * 2.4,
+        ph: Math.random() * Math.PI * 2,
+        sp: 0.4 + Math.random() * 0.9,
+        dx: (Math.random() - 0.5) * 0.00003,
+        dy: (Math.random() - 0.5) * 0.00002,
+      }))
+    }
+
     const resize = () => {
       canvas.width = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
+      stat = buildStatic(canvas.width, canvas.height)
+      seed()
     }
     resize()
     window.addEventListener('resize', resize)
@@ -56,22 +158,28 @@ function AmbientCanvas() {
 
     const draw = (t: number) => {
       const { width: w, height: h } = canvas
-      ctx.fillStyle = '#0f172a'
-      ctx.fillRect(0, 0, w, h)
-      ctx.globalCompositeOperation = 'lighter'
-      for (const b of BLOBS) {
-        const x = (b.cx + Math.sin(t * b.sp + b.ph) * b.ax) * w
-        const y = (b.cy + Math.cos(t * b.sp * 1.3 + b.ph) * b.ay) * h
-        const r = b.r * Math.max(w, h)
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r)
-        g.addColorStop(0, `rgba(${b.color}, 0.16)`)
-        g.addColorStop(1, 'rgba(0, 0, 0, 0)')
-        ctx.fillStyle = g
+      if (stat) ctx.drawImage(stat, 0, 0)
+
+      // 반딧불이: 천천히 떠다니며 깜빡인다
+      for (const f of flies) {
+        f.x = (f.x + f.dx * f.sp * 16 + 1) % 1
+        f.y = (f.y + f.dy * f.sp * 16 + Math.sin(t * 0.0003 * f.sp + f.ph) * 0.00012 + 1) % 1
+        const tw = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(t * 0.0016 * f.sp + f.ph))
+        const x = f.x * w
+        const y = f.y * h
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, f.r * 7)
+        glow.addColorStop(0, `rgba(255, 214, 140, ${0.5 * tw})`)
+        glow.addColorStop(0.35, `rgba(226, 176, 92, ${0.22 * tw})`)
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        ctx.fillStyle = glow
         ctx.beginPath()
-        ctx.arc(x, y, r, 0, Math.PI * 2)
+        ctx.arc(x, y, f.r * 7, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = `rgba(255, 236, 190, ${0.85 * tw})`
+        ctx.beginPath()
+        ctx.arc(x, y, f.r * 0.8, 0, Math.PI * 2)
         ctx.fill()
       }
-      ctx.globalCompositeOperation = 'source-over'
       if (!reduced) raf = requestAnimationFrame(draw)
     }
     raf = requestAnimationFrame(draw)
