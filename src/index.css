@@ -3,75 +3,17 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --bg: 0 0% 4%;
-    --surface: 0 0% 8%;
-    --text: 0 0% 96%;
-    --muted: 0 0% 53%;
-    --stroke: 0 0% 12%;
-    --accent: 0 0% 96%;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-bg text-text-primary font-body antialiased;
+    @apply bg-cream text-ink font-sans antialiased;
     overflow-x: hidden;
-  }
-}
-
-@layer utilities {
-  .accent-gradient {
-    background: linear-gradient(90deg, #89AACC 0%, #4E85BF 100%);
+    letter-spacing: -0.01em;
   }
 
-  .accent-gradient-border {
-    position: relative;
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
   }
-
-  .accent-gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #89AACC 0%, #4E85BF 100%);
-    background-size: 200% 200%;
-    animation: gradient-shift 6s ease infinite;
-    z-index: -1;
-  }
-}
-
-@keyframes scroll-down {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(200%); }
-}
-
-@keyframes role-fade-in {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: hsl(var(--bg));
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--stroke));
-  border-radius: 2px;
 }

@@ -7,34 +7,23 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        display: ['Instrument Serif', 'serif'],
+        sans: ['"Pretendard Variable"', 'Pretendard', '-apple-system', 'sans-serif'],
       },
       colors: {
-        bg: "hsl(var(--bg))",
-        surface: "hsl(var(--surface))",
-        "text-primary": "hsl(var(--text))",
-        muted: "hsl(var(--muted))",
-        stroke: "hsl(var(--stroke))",
+        forest: "#1B4332",
+        sage: "#2D6A4F",
+        amber: "#F59E0B",
+        cream: "#FAF7F2",
+        ink: "#1C1917",
+        stone: "#78716C",
+        sand: "#E7E0D5",
       },
-      animation: {
-        'scroll-down': 'scroll-down 1.5s ease-in-out infinite',
-        'role-fade-in': 'role-fade-in 0.4s ease-out',
-        'gradient-shift': 'gradient-shift 6s ease infinite',
+      maxWidth: {
+        page: "1080px",
+        prose: "720px",
       },
-      keyframes: {
-        'scroll-down': {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(200%)' },
-        },
-        'role-fade-in': {
-          '0%': { opacity: '0', transform: 'translateY(8px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-        'gradient-shift': {
-          '0%, 100%': { backgroundPosition: '0% 50%' },
-          '50%': { backgroundPosition: '100% 50%' },
-        },
+      boxShadow: {
+        card: "0 1px 3px rgba(0,0,0,.06)",
       },
     },
   },

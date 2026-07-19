@@ -1,32 +1,25 @@
-import { useState } from 'react'
-import LoadingScreen from './components/LoadingScreen'
-import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import SelectedWorks from './components/SelectedWorks'
-import Journal from './components/Journal'
-import Explorations from './components/Explorations'
-import Stats from './components/Stats'
-import Contact from './components/Contact'
+import PainPoints from './components/PainPoints'
+import LeadMagnet from './components/LeadMagnet'
+import About from './components/About'
+import Testimonials from './components/Testimonials'
+import Steps from './components/Steps'
+import FinalCta from './components/FinalCta'
+import Footer from './components/Footer'
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-
   return (
-    <div className="min-h-screen bg-bg">
-      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
-      {!isLoading && (
-        <>
-          <Navbar />
-          <main>
-            <Hero />
-            <SelectedWorks />
-            <Journal />
-            <Explorations />
-            <Stats />
-            <Contact />
-          </main>
-        </>
-      )}
+    <div className="min-h-screen">
+      <Hero />
+      <main>
+        <PainPoints />
+        <LeadMagnet />
+        <About />
+        <Testimonials />
+        <Steps />
+        <FinalCta />
+      </main>
+      <Footer />
     </div>
   )
 }
